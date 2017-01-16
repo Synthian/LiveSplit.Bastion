@@ -20,7 +20,7 @@ The autosplitter is currently capable of starting and ending your splits, resett
 
 - Go to the [releases](https://github.com/Synthian/LiveSplit.Bastion/releases) section in this repository.
 - Download the latest LiveSplit.Bastion.dll and LiveSplit32.exe
-- Place the LiveSplit32.exe inside your LiveSplit folder. i.e. C:\Program Files (x86)\LiveSplit\Components
+- Place the LiveSplit32.exe inside your LiveSplit folder. i.e. C:\Program Files (x86)\LiveSplit
 - You need to use the LiveSplit32.exe for the autosplitter to work properly with this game.
 - Place the LiveSplit.Bastion.dll inside the Components folder. i.e. C:\Program Files (x86)\LiveSplit\Components\
 - Open LiveSplit32.exe and edit your layout. Add the autosplitter to your layout. (Add -> Control -> Bastion Auto Splitter)
