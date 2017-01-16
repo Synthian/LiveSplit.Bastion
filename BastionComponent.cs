@@ -87,6 +87,11 @@ namespace LiveSplit.Bastion {
                         shouldSplit = true;
                     }
                 }
+                else if (nextMap == "Attack01.map" && oldMap != "Attack01.map")
+                {
+                    shouldSplit = true;
+                }
+
             }
 
 			HandleSplit(shouldSplit, nextMap == "ProtoIntro01.map" && noModel);
