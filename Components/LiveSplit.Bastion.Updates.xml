@@ -1,6 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
-	<update version="1.4">
+	<update version="1.4.2.0">
+		<files>
+			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>
+				Testing autoupdating.
+			</change>
+		</changelog>
+	</update>
+	<update version="1.4.1.0">
+		<files>
+			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>
+				Fix file path for autoupdating.
+			</change>
+		</changelog>
+	</update>
+	<update version="1.4.0.0">
 		<files>
 			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
 		</files>
