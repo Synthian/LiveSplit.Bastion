@@ -1,13 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="1.5.0.0">
+		<files>
+			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Fixed a bug that caused splitting when loading the Rippling Walls if the Reset setting was disabled.</change>
+		</changelog>
+	</update>
 	<update version="1.4.2.0">
 		<files>
 			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
 		</files>
 		<changelog>
-			<change>
-				Testing autoupdating.
-			</change>
+			<change>Testing autoupdating.</change>
 		</changelog>
 	</update>
 	<update version="1.4.1.0">

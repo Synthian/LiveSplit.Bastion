@@ -55,10 +55,6 @@ namespace LiveSplit.Bastion {
                 {
                     shouldSplit = true;
                 }
-                else if (nextMap == "ProtoIntro01.map" && oldMap != "ProtoIntro01.map")
-                {
-                    shouldSplit = true;
-                }
                 else if (nextMap == "ProtoIntro01b.map" && oldMap != "ProtoIntro01b.map" && settings.RockInSky)
                 {
                     if (settings.RockInSky)
