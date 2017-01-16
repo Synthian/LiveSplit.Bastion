@@ -10,7 +10,7 @@ namespace LiveSplit.Bastion {
         public IComponent Create(LiveSplitState state) { return new BastionComponent(); }
         public string UpdateName { get { return this.ComponentName; } }
 		public string UpdateURL { get { return "https://raw.githubusercontent.com/Synthian/LiveSplit.Bastion/master/"; } }
-        public string XMLURL { get { return this.UpdateURL + "Components/LiveSplit.Kalimba.Updates.xml"; } }
+        public string XMLURL { get { return this.UpdateURL + "Components/LiveSplit.Bastion.Updates.xml"; } }
 		public Version Version { get { return Assembly.GetExecutingAssembly().GetName().Version; } }
     }
 }
