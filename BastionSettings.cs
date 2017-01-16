@@ -75,7 +75,7 @@ namespace LiveSplit.Bastion.Settings
         private void SetSetting(XmlDocument document, XmlElement settings, CheckBox chk, string name)
         {
             XmlElement xmlOption = document.CreateElement(name);
-            xmlOption.InnerText = chkEnd.Checked.ToString();
+            xmlOption.InnerText = chk.Checked.ToString();
             settings.AppendChild(xmlOption);
         }
         public void SetSettings(XmlNode settings)
