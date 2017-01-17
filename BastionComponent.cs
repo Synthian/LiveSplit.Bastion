@@ -68,16 +68,16 @@ namespace LiveSplit.Bastion {
                     {
                         shouldSplit = true;
                     }
+                    else if (settings.SoleRegret && nextMap == "ProtoIntro01b.map" && oldMap != "ProtoIntro01b.map")
+                    {
+                        shouldSplit = true;
+                    }
                     else if (settings.Classic)
                     {
                         if (oldAllowInput && !allowInput)
                         {
                             switch (nextMap)
                             {
-                                case "ProtoIntro01a.map":
-                                    if (settings.SoleRegret && inRange(12086, 7218, playerX, playerY))
-                                        shouldSplit = true;
-                                    break;
                                 case "ProtoIntro01b.map":
                                     if (playerX > 17070 && playerY < 7930)
                                         shouldSplit = true;
@@ -162,10 +162,6 @@ namespace LiveSplit.Bastion {
                     }
                     else
                     {
-                        if (settings.SoleRegret && nextMap == "ProtoIntro01b.map" && oldMap != "ProtoIntro01b.map")
-                        {
-                            shouldSplit = true;
-                        }
                         if (nextMap == "ProtoTown03.map" && oldMap != "ProtoTown03.map")
                         {
                             if (oldMap != "Attack01.map" && oldMap != "")
