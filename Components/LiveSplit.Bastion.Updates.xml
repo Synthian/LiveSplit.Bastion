@@ -1,5 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="2.1.0.0">
+		<files>
+			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Readded splitting at Rock in the Sky. Fixed splitting at the end of Wharf District.</change>
+		</changelog>
+	</update>
 	<update version="2.0.0.0">
 		<files>
 			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>

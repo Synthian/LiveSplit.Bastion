@@ -34,6 +34,7 @@
             this.chkTazal = new System.Windows.Forms.CheckBox();
             this.chkRam = new System.Windows.Forms.CheckBox();
             this.toolTips = new System.Windows.Forms.ToolTip(this.components);
+            this.chkSoleRegret = new System.Windows.Forms.CheckBox();
             this.flowMain.SuspendLayout();
             this.flowOptions.SuspendLayout();
             this.SuspendLayout();
@@ -59,6 +60,7 @@
             this.flowOptions.Controls.Add(this.chkEnd);
             this.flowOptions.Controls.Add(this.chkReset);
             this.flowOptions.Controls.Add(this.chkSplit);
+            this.flowOptions.Controls.Add(this.chkSoleRegret);
             this.flowOptions.Controls.Add(this.chkTazal);
             this.flowOptions.Controls.Add(this.chkRam);
             this.flowOptions.Location = new System.Drawing.Point(0, 0);
@@ -130,7 +132,7 @@
             // 
             // chkTazal
             // 
-            this.chkTazal.Location = new System.Drawing.Point(3, 49);
+            this.chkTazal.Location = new System.Drawing.Point(142, 49);
             this.chkTazal.Name = "chkTazal";
             this.chkTazal.Size = new System.Drawing.Size(111, 17);
             this.chkTazal.TabIndex = 6;
@@ -150,6 +152,17 @@
             this.toolTips.SetToolTip(this.chkRam, "As done in valentinoIAN\'s ASL runs");
             this.chkRam.UseVisualStyleBackColor = true;
             this.chkRam.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
+            // 
+            // chkSoleRegret
+            // 
+            this.chkSoleRegret.Location = new System.Drawing.Point(3, 49);
+            this.chkSoleRegret.Name = "chkSoleRegret";
+            this.chkSoleRegret.Size = new System.Drawing.Size(133, 17);
+            this.chkSoleRegret.TabIndex = 12;
+            this.chkSoleRegret.Text = "Split after Sole Regret";
+            this.toolTips.SetToolTip(this.chkSoleRegret, "Splits when you exit the Sole Regret (Rondy\'s Bar)");
+            this.chkSoleRegret.UseVisualStyleBackColor = true;
+            this.chkSoleRegret.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
             // 
             // BastionSettings
             // 
@@ -182,5 +195,6 @@
         private System.Windows.Forms.CheckBox chkReset;
         private System.Windows.Forms.CheckBox chkClassic;
         private System.Windows.Forms.CheckBox chkRam;
+        private System.Windows.Forms.CheckBox chkSoleRegret;
     }
 }

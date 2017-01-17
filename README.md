@@ -14,6 +14,7 @@ The autosplitter is currently capable of starting and ending your splits, resett
 **Reset** - Toggles automatically resetting.  
 **Split** - Toggles splitting after completing each level.  
 
+**Split after Sole Regret** - Toggles splitting when you leave Rondy's Bar.
 **Split Tazal I** - Toggles splitting when you load the map with the Battering Ram pickup on it.  
 **Split upon picking up the Battering Ram** - Toggles splitting upon ... picking up the Battering Ram.  
 

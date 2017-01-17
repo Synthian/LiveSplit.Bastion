@@ -12,6 +12,7 @@ namespace LiveSplit.Bastion.Settings
         public bool Tazal { get; set; }
         public bool Classic { get; set; }
         public bool Ram { get; set; }
+        public bool SoleRegret { get; set; }
         private BastionComponent component;
         private bool isLoading;
 
@@ -39,6 +40,7 @@ namespace LiveSplit.Bastion.Settings
         }
         public void LoadSettings()
         {
+            chkSoleRegret.Checked = SoleRegret;
             chkRam.Checked = Ram;
             chkEnd.Checked = End;
             chkClassic.Checked = Classic;
@@ -51,11 +53,13 @@ namespace LiveSplit.Bastion.Settings
         {
             chkTazal.Enabled = chkSplit.Checked;
             chkRam.Enabled = chkSplit.Checked;
+            chkSoleRegret.Enabled = chkSplit.Checked;
 
             if (!chkSplit.Checked)
             {
                 chkTazal.Checked = false;
                 chkRam.Checked = false;
+                chkSoleRegret.Checked = false;
             }
 
             UpdateSplits();
@@ -64,6 +68,7 @@ namespace LiveSplit.Bastion.Settings
         {
             if (isLoading) return;
 
+            SoleRegret = chkSoleRegret.Checked;
             Ram = chkRam.Checked;
             Classic = chkClassic.Checked;
             Reset = chkReset.Checked;
@@ -76,6 +81,7 @@ namespace LiveSplit.Bastion.Settings
         {
             XmlElement xmlSettings = document.CreateElement("Settings");
 
+            SetSetting(document, xmlSettings, chkSoleRegret, "SoleRegret");
             SetSetting(document, xmlSettings, chkRam, "Ram");
             SetSetting(document, xmlSettings, chkClassic, "Classic");
             SetSetting(document, xmlSettings, chkReset, "Reset");
@@ -94,6 +100,7 @@ namespace LiveSplit.Bastion.Settings
         }
         public void SetSettings(XmlNode settings)
         {
+            SoleRegret = GetSetting(settings, "//SoleRegret");
             Ram = GetSetting(settings, "//Ram");
             Classic = GetSetting(settings, "//Classic");
             Reset = GetSetting(settings, "//Reset");
