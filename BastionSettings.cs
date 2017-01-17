@@ -40,14 +40,14 @@ namespace LiveSplit.Bastion.Settings
         }
         public void LoadSettings()
         {
-            chkSoleRegret.Checked = SoleRegret;
-            chkRam.Checked = Ram;
             chkEnd.Checked = End;
             chkClassic.Checked = Classic;
             chkStart.Checked = Start;
             chkReset.Checked = Reset;
             chkSplit.Checked = Split;
             chkTazal.Checked = Tazal;
+            chkSoleRegret.Checked = SoleRegret;
+            chkRam.Checked = Ram;
         }
         private void chkBox_CheckedChanged(object sender, EventArgs e)
         {

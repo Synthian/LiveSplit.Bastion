@@ -1,5 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="2.3.0.0">
+		<files>
+			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Fixed some settings not properly saving. I have no idea why this fix worked.</change>
+		</changelog>
+	</update>
 	<update version="2.2.0.0">
 		<files>
 			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
