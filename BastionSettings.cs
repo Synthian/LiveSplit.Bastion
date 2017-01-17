@@ -6,11 +6,12 @@ namespace LiveSplit.Bastion.Settings
     public partial class BastionSettings : UserControl
     {
         public bool Reset { get; set; }
-        public bool SplitStart { get; set; }
-        public bool SplitEnd { get; set; }
-        public bool Town { get; set; }
-        public bool RockInSky { get; set; }
+        public bool Start { get; set; }
+        public bool End { get; set; }
+        public bool Split { get; set; }
         public bool Tazal { get; set; }
+        public bool Classic { get; set; }
+        public bool Ram { get; set; }
         private BastionComponent component;
         private bool isLoading;
 
@@ -20,10 +21,11 @@ namespace LiveSplit.Bastion.Settings
             InitializeComponent();
 
             //Defaults
+            Classic = true;
             Reset = true;
-            SplitStart = true;
-            SplitEnd = true;
-            Town = true;
+            Start = true;
+            End = true;
+            Split = true;
 
             component = comp;
             isLoading = false;
@@ -37,37 +39,49 @@ namespace LiveSplit.Bastion.Settings
         }
         public void LoadSettings()
         {
-            chkEnd.Checked = SplitEnd;
-            chkStart.Checked = SplitStart;
+            chkRam.Checked = Ram;
+            chkEnd.Checked = End;
+            chkClassic.Checked = Classic;
+            chkStart.Checked = Start;
             chkReset.Checked = Reset;
-            chkTown.Checked = Town;
+            chkSplit.Checked = Split;
             chkTazal.Checked = Tazal;
-            chkRockInSky.Checked = RockInSky;
         }
         private void chkBox_CheckedChanged(object sender, EventArgs e)
         {
+            chkTazal.Enabled = chkSplit.Checked;
+            chkRam.Enabled = chkSplit.Checked;
+
+            if (!chkSplit.Checked)
+            {
+                chkTazal.Checked = false;
+                chkRam.Checked = false;
+            }
+
             UpdateSplits();
         }
         public void UpdateSplits()
         {
             if (isLoading) return;
 
+            Ram = chkRam.Checked;
+            Classic = chkClassic.Checked;
             Reset = chkReset.Checked;
-            SplitStart = chkStart.Checked;
-            SplitEnd = chkEnd.Checked;
-            Town = chkTown.Checked;
-            RockInSky = chkRockInSky.Checked;
+            Start = chkStart.Checked;
+            End = chkEnd.Checked;
+            Split = chkSplit.Checked;
             Tazal = chkTazal.Checked;
         }
         public XmlNode UpdateSettings(XmlDocument document)
         {
             XmlElement xmlSettings = document.CreateElement("Settings");
 
+            SetSetting(document, xmlSettings, chkRam, "Ram");
+            SetSetting(document, xmlSettings, chkClassic, "Classic");
             SetSetting(document, xmlSettings, chkReset, "Reset");
-            SetSetting(document, xmlSettings, chkStart, "SplitStart");
-            SetSetting(document, xmlSettings, chkEnd, "SplitEnd");
-            SetSetting(document, xmlSettings, chkRockInSky, "RockInSky");
-            SetSetting(document, xmlSettings, chkTown, "Town");
+            SetSetting(document, xmlSettings, chkStart, "Start");
+            SetSetting(document, xmlSettings, chkEnd, "End");
+            SetSetting(document, xmlSettings, chkSplit, "Split");
             SetSetting(document, xmlSettings, chkTazal, "Tazal");
 
             return xmlSettings;
@@ -80,11 +94,12 @@ namespace LiveSplit.Bastion.Settings
         }
         public void SetSettings(XmlNode settings)
         {
+            Ram = GetSetting(settings, "//Ram");
+            Classic = GetSetting(settings, "//Classic");
             Reset = GetSetting(settings, "//Reset");
-            SplitStart = GetSetting(settings, "//SplitStart");
-            SplitEnd = GetSetting(settings, "//SplitEnd");
-            RockInSky = GetSetting(settings, "//RockInSky");
-            Town = GetSetting(settings, "//Town");
+            Start = GetSetting(settings, "//Start");
+            End = GetSetting(settings, "//End");
+            Split = GetSetting(settings, "//Split");
             Tazal = GetSetting(settings, "//Tazal");
         }
         private bool GetSetting(XmlNode settings, string name)

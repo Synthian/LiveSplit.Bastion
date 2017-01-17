@@ -20,12 +20,21 @@ namespace LiveSplit.Bastion.Memory {
 		public int PlayerUnit() {
 			return player.Read<int>(0x0, 0x4, 0xc, 0x308, 0x8);
 		}
-		//public float PlayerX() {
-		//	return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xd8);
-		//}
-		//public float PlayerY() {
-		//	return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xdc);
-		//}
+		public float PlayerX() {
+			return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xd8);
+		}
+		public float PlayerY() {
+			return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xdc);
+		}
+        /*public float targetX()
+        {
+            return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0xc, 0xd8);
+        }
+        public float targetY()
+        {
+            return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0xc, 0xdc);
+        }*/
+
 		public string NextMapName() {
 			int length = nextMap.Read<int>(0x2c, 0x8);
 			if (length < 120 && length > 0) {
