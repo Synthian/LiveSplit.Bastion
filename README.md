@@ -3,7 +3,7 @@ By **DevilSquirrel**, valentinoIAN, and Vulajin
 
 ## What it Does
 
-The autosplitter is currently capable of starting and ending your splits, resetting your splits whenever you start a new game, as well as splitting whenever a load screen begins. This splitter is currently unable to split upon using objects, so the split times will not match the classic Skyway split method.
+The autosplitter is currently capable of starting and ending your splits, resetting your splits whenever you start a new game, as well as splitting whenever you use a Skyway or end a level by other means (Falling off Wharf District, for example). The Splitter can also split at two special locations, and split on loading screens instead of Skyway use. 
 
 ## Options (In Layout Settings)
 
