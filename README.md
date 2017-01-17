@@ -7,13 +7,15 @@ The autosplitter is currently capable of starting and ending your splits, resett
 
 ## Options (In Layout Settings)
 
+**Classic timing** - If this is checked, the splits will go off whenever you lose control at the end of each level (i.e. using a Skyway). If this is unchecked, splits will be triggered when the level load screen begins.  
+
 **Start** - Toggles automatically starting splits.  
 **End** - Toggles ending your splits upon input being disabled at the end of the game.  
 **Reset** - Toggles automatically resetting.  
-**Split Bastion** - Toggles splitting everytime you return to the Bastion.
+**Split** - Toggles splitting after completing each level.  
 
-**Split after The Sole Regret** - Toggles splitting upon loading the Wharf District Map   
 **Split Tazal I** - Toggles splitting when you load the map with the Battering Ram pickup on it.  
+**Split upon picking up the Battering Ram** - Toggles splitting upon ... picking up the Battering Ram.  
 
 
 ## How to Install
