@@ -150,15 +150,12 @@ namespace LiveSplit.Bastion {
                                     if (inRange(5154, 3755, playerX, playerY))
                                         shouldSplit = true;
                                     break;
-                                //For the end of Tazal
-                                case "ProtoTown03.map":
-                                    if (oldMap == "FinalZulf01.map")
-                                        shouldSplit = true;
-                                    break;
                                 default:
                                     break;
                             }
                         }
+                        else if (nextMap == "ProtoTown03.map" && oldMap == "FinalZulf01.map")
+                            shouldSplit = true;
                     }
                     else
                     {

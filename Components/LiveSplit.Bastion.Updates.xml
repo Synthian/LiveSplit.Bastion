@@ -1,5 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+	<update version="2.4.0.0">
+		<files>
+			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Fixed a bug where the Skyway method would not split at the end of Tazal Terminals.</change>
+		</changelog>
+	</update>
 	<update version="2.3.0.0">
 		<files>
 			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
