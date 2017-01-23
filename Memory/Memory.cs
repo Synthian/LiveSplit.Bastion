@@ -81,7 +81,12 @@ namespace LiveSplit.Bastion.Memory {
 		public static string GetString(this Process proc, IntPtr address) {
 			if (address == IntPtr.Zero) { return string.Empty; }
 			int length = Read<int>(proc, address, 0x8);
-			return System.Text.Encoding.Unicode.GetString(GetBytes(proc, address + 0x0C, 2 * length));
+			return System.Text.Encoding.Unicode.GetString(GetBytes(proc, address + 0xC, 2 * length));
+		}
+		public static string GetString2(this Process proc, IntPtr address) {
+			if (address == IntPtr.Zero) { return string.Empty; }
+			int length = Read<int>(proc, address, 0x4);
+			return System.Text.Encoding.Unicode.GetString(GetBytes(proc, address + 0x8, 2 * length));
 		}
 		public static void Write<T>(this Process targetProcess, IntPtr address, T value, params int[] offsets) {
 			byte[] buffer = new byte[8];

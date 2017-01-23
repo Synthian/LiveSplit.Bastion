@@ -15,18 +15,34 @@ namespace LiveSplit.Bastion.Memory {
 		}
 
 		public bool AllowInput() {
-			return player.Read<bool>(0x0, 0x4, 0xc, 0x308, 0x60);
+			if (player.Version == "v1.1") {
+				return player.Read<bool>(0x0, 0x4, 0x8, 0x308, 0x60);
+			} else {
+				return player.Read<bool>(0x0, 0x4, 0xc, 0x308, 0x60);
+			}
 		}
 		public int PlayerUnit() {
-			return player.Read<int>(0x0, 0x4, 0xc, 0x308, 0x8);
+			if (player.Version == "v1.1") {
+				return player.Read<int>(0x0, 0x4, 0x8, 0x308, 0x8);
+			} else {
+				return player.Read<int>(0x0, 0x4, 0xc, 0x308, 0x8);
+			}
 		}
 		public float PlayerX() {
-			return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xd8);
+			if (player.Version == "v1.1") {
+				return player.Read<float>(0x0, 0x4, 0x8, 0x308, 0x8, 0xd8);
+			} else {
+				return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xd8);
+			}
 		}
 		public float PlayerY() {
-			return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xdc);
+			if (player.Version == "v1.1") {
+				return player.Read<float>(0x0, 0x4, 0x8, 0x308, 0x8, 0xdc);
+			} else {
+				return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xdc);
+			}
 		}
-        /*public float targetX()
+		/*public float targetX()
         {
             return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0xc, 0xd8);
         }
@@ -34,11 +50,26 @@ namespace LiveSplit.Bastion.Memory {
         {
             return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0xc, 0xdc);
         }*/
-
+		public int MapPointer() {
+			return nextMap.Value.ToInt32();
+		}
 		public string NextMapName() {
-			int length = nextMap.Read<int>(0x2c, 0x8);
+			int length = 0;
+			if (nextMap.Version == "v1.1") {
+				length = nextMap.Read<int>(0x2c, 0x4);
+			}
+            else {
+				length = nextMap.Read<int>(0x2c, 0x8);
+			}
 			if (length < 120 && length > 0) {
-				string mapName = nextMap.ReadString(0x2c);
+				string mapName = "";
+				if (nextMap.Version == "v1.1") {
+					mapName = nextMap.ReadString2(0x2c);
+				}
+                else {
+					mapName = nextMap.ReadString(0x2c);
+				}
+
 				if (mapName.EndsWith(".map", StringComparison.OrdinalIgnoreCase)) {
 					return System.IO.Path.GetFileName(mapName);
 				}
@@ -66,16 +97,21 @@ namespace LiveSplit.Bastion.Memory {
 		}
 	}
 	public class ProgramPointer {
-		private static string[] versions = new string[1] { "v1.0" };
+		private static string[] versions = new string[2] { "v1.0", "v1.1" };
 		private static Dictionary<string, Dictionary<string, string>> funcPatterns = new Dictionary<string, Dictionary<string, string>>() {
 			{"v1.0", new Dictionary<string, string>() {
 					{"World.update()",             "4DB8FF15????????8B15????????39028D7DBC|-9" },
 					{"UnitManager.updateBuffer()", "85C0743D8B3D????????8B470C8B57043B4204750B8B570C428BCFE8????????8B4F048B5F0C8D430189470C568BD3E8????????FF47108BCE|-51" }
 			}},
+			{"v1.1", new Dictionary<string, string>() {
+					{"World.update()",             "4DBCFF15????????8B15????????38028D7DC0|-9" },
+					{"UnitManager.updateBuffer()", "85D274198B0D????????8BD63909E8????????8BCEFF15????????EB178B0D????????8BD63909E8|-34" }
+			}}
 		};
 		private IntPtr pointer;
 		public BastionMemory Memory { get; set; }
 		public string Name { get; set; }
+		public string Version { get; set; }
 		public bool IsStatic { get; set; }
 		private int lastID;
 		private DateTime lastTry;
@@ -106,6 +142,11 @@ namespace LiveSplit.Bastion.Memory {
 			IntPtr p = Memory.Program.Read<IntPtr>(Value, offsets);
 			return Memory.Program.GetString(p);
 		}
+		public string ReadString2(params int[] offsets) {
+			if (!Memory.IsHooked) { return string.Empty; }
+			IntPtr p = Memory.Program.Read<IntPtr>(Value, offsets);
+			return Memory.Program.GetString2(p);
+		}
 		public void Write<T>(T value, params int[] offsets) {
 			if (!Memory.IsHooked) { return; }
 			Memory.Program.Write<T>(Value, value, offsets);
@@ -132,39 +173,14 @@ namespace LiveSplit.Bastion.Memory {
 		public IntPtr GetVersionedFunctionPointer(string name) {
 			foreach (string version in versions) {
 				if (funcPatterns[version].ContainsKey(name)) {
-					return Memory.Program.FindSignatures(funcPatterns[version][name])[0];
+					IntPtr ptr = Memory.Program.FindSignatures(funcPatterns[version][name])[0];
+					if (ptr != IntPtr.Zero) {
+						Version = version;
+						return ptr;
+					}
 				}
 			}
 			return IntPtr.Zero;
 		}
-	}
-	public enum FlagSet {
-		NULL,
-		MAPS_COMPLETE,
-		MAPS_UNLOCKED,
-		MAPS_VIEWED,
-		MAPS_SAVED,
-		THINGS_DEAD,
-		CONVERSATIONS_COMPLETE,
-		SEEDS_FOUND,
-		SCRIPTS_FIRED,
-		SCRIPT_FLAGS,
-		LOCAL_SCRIPTS,
-		GLOBAL_SCRIPTS,
-		WEAPONS_UNLOCKED,
-		WEAPONS_VIEWED,
-		WEAPONS_FIRED,
-		FLAGS,
-		AUDIO_CUES_PLAYED,
-		UPGRADES_UNLOCKED,
-		UPGRADES_VIEWED,
-		STORE_ITEMS_VIEWED,
-		QUESTS_UNLOCKED,
-		QUESTS_COMPLETE,
-		QUESTS_TURNED_IN,
-		CHALLENGE_FIRST_PRIZE,
-		CHALLENGE_SECOND_PRIZE,
-		CHALLENGE_THIRD_PRIZE,
-		HINT_TEXT
 	}
 }
