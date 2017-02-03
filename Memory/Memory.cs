@@ -2,292 +2,471 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-namespace LiveSplit.Bastion.Memory {
-	public static class MemoryReader {
-		const int MEM_COMMIT = 0x00001000;
-		const int MEM_PRIVATE = 0x00020000;
-		const int PAGE_EXECUTE_READWRITE = 0x40;
+using System.Text;
+namespace LiveSplit.Bastion.Memory
+{
+    public static class MemoryReader
+    {
+        private static Dictionary<int, Module64[]> ModuleCache = new Dictionary<int, Module64[]>();
+        public static T Read<T>(this Process targetProcess, IntPtr address, params int[] offsets) where T : struct
+        {
+            if (targetProcess == null || targetProcess.HasExited || address == IntPtr.Zero) { return default(T); }
 
-		public enum AllocationProtect : uint {
-			PAGE_EXECUTE = 0x00000010,
-			PAGE_EXECUTE_READ = 0x00000020,
-			PAGE_EXECUTE_READWRITE = 0x00000040,
-			PAGE_EXECUTE_WRITECOPY = 0x00000080,
-			PAGE_NOACCESS = 0x00000001,
-			PAGE_READONLY = 0x00000002,
-			PAGE_READWRITE = 0x00000004,
-			PAGE_WRITECOPY = 0x00000008,
-			PAGE_GUARD = 0x00000100,
-			PAGE_NOCACHE = 0x00000200,
-			PAGE_WRITECOMBINE = 0x00000400
-		}
+            int last = OffsetAddress(targetProcess, ref address, offsets);
 
-		[StructLayout(LayoutKind.Sequential)]
-		public struct MEMORY_BASIC_INFORMATION {
-			public IntPtr BaseAddress;
-			public IntPtr AllocationBase;
-			public uint AllocationProtect;
-			public IntPtr RegionSize;
-			public uint State;
-			public uint Protect;
-			public uint Type;
-		}
+            Type type = typeof(T);
+            type = (type.IsEnum ? Enum.GetUnderlyingType(type) : type);
 
-		public static T Read<T>(this Process targetProcess, IntPtr address, params int[] offsets) {
-			byte[] buffer = new byte[8];
-			int bytesRead;
+            int count = (type == typeof(bool)) ? 1 : Marshal.SizeOf(type);
+            byte[] buffer = Read(targetProcess, address + last, count);
 
-			try {
-				for (int i = 0; i < offsets.Length - 1; i++) {
-					SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, (IntPtr)(address + offsets[i]), buffer, 4, out bytesRead);
-					address = (IntPtr)BitConverter.ToInt32(buffer, 0);
-				}
-				int last = offsets.Length > 0 ? offsets[offsets.Length - 1] : 0;
-				if (typeof(T) == typeof(int)) {
-					SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, (IntPtr)(address + last), buffer, 4, out bytesRead);
-					return (T)(object)BitConverter.ToInt32(buffer, 0);
-				} else if (typeof(T) == typeof(long)) {
-					SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, (IntPtr)(address + last), buffer, 8, out bytesRead);
-					return (T)(object)BitConverter.ToInt64(buffer, 0);
-				} else if (typeof(T) == typeof(byte)) {
-					SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, (IntPtr)(address + last), buffer, 1, out bytesRead);
-					buffer[1] = 0;
-					return (T)(object)(byte)BitConverter.ToInt16(buffer, 0);
-				} else if (typeof(T) == typeof(short)) {
-					SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, (IntPtr)(address + last), buffer, 2, out bytesRead);
-					return (T)(object)BitConverter.ToInt64(buffer, 0);
-				} else if (typeof(T) == typeof(float)) {
-					SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, (IntPtr)(address + last), buffer, 4, out bytesRead);
-					return (T)(object)BitConverter.ToSingle(buffer, 0);
-				} else if (typeof(T) == typeof(double)) {
-					SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, (IntPtr)(address + last), buffer, 8, out bytesRead);
-					return (T)(object)BitConverter.ToDouble(buffer, 0);
-				} else if (typeof(T) == typeof(bool)) {
-					SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, (IntPtr)(address + last), buffer, 1, out bytesRead);
-					return (T)(object)BitConverter.ToBoolean(buffer, 0);
-				} else if (typeof(T) == typeof(IntPtr)) {
-					SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, (IntPtr)(address + last), buffer, 4, out bytesRead);
-					return (T)(object)(IntPtr)BitConverter.ToInt32(buffer, 0);
-				}
-			} catch { }
-			return default(T);
-		}
-		public static byte[] GetBytes(this Process proc, IntPtr addr, int numBytes) {
-			byte[] buffer = new byte[numBytes];
-			int bytesRead;
-			SafeNativeMethods.ReadProcessMemory(proc.Handle, addr, buffer, numBytes, out bytesRead);
-			return buffer;
-		}
-		public static string GetString(this Process proc, IntPtr address) {
-			if (address == IntPtr.Zero) { return string.Empty; }
-			int length = Read<int>(proc, address, 0x8);
-			return System.Text.Encoding.Unicode.GetString(GetBytes(proc, address + 0xC, 2 * length));
-		}
-		public static string GetString2(this Process proc, IntPtr address) {
-			if (address == IntPtr.Zero) { return string.Empty; }
-			int length = Read<int>(proc, address, 0x4);
-			return System.Text.Encoding.Unicode.GetString(GetBytes(proc, address + 0x8, 2 * length));
-		}
-		public static void Write<T>(this Process targetProcess, IntPtr address, T value, params int[] offsets) {
-			byte[] buffer = new byte[8];
-			int bytesRead;
+            object obj = ResolveToType(buffer, type);
+            return (T)((object)obj);
+        }
+        private static object ResolveToType(byte[] bytes, Type type)
+        {
+            if (type == typeof(int))
+            {
+                return BitConverter.ToInt32(bytes, 0);
+            }
+            else if (type == typeof(uint))
+            {
+                return BitConverter.ToUInt32(bytes, 0);
+            }
+            else if (type == typeof(float))
+            {
+                return BitConverter.ToSingle(bytes, 0);
+            }
+            else if (type == typeof(double))
+            {
+                return BitConverter.ToDouble(bytes, 0);
+            }
+            else if (type == typeof(byte))
+            {
+                return bytes[0];
+            }
+            else if (type == typeof(bool))
+            {
+                return bytes != null && bytes[0] > 0;
+            }
+            else if (type == typeof(short))
+            {
+                return BitConverter.ToInt16(bytes, 0);
+            }
+            else if (type == typeof(ushort))
+            {
+                return BitConverter.ToUInt16(bytes, 0);
+            }
+            else if (type == typeof(long))
+            {
+                return BitConverter.ToInt64(bytes, 0);
+            }
+            else if (type == typeof(ulong))
+            {
+                return BitConverter.ToUInt64(bytes, 0);
+            }
+            else
+            {
+                GCHandle gCHandle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
+                try
+                {
+                    return Marshal.PtrToStructure(gCHandle.AddrOfPinnedObject(), type);
+                }
+                finally
+                {
+                    gCHandle.Free();
+                }
+            }
+        }
+        public static byte[] Read(this Process targetProcess, IntPtr address, int numBytes)
+        {
+            byte[] buffer = new byte[numBytes];
+            if (targetProcess == null || targetProcess.HasExited || address == IntPtr.Zero) { return buffer; }
 
-			try {
-				for (int i = 0; i < offsets.Length - 1; i++) {
-					SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, (IntPtr)(address + offsets[i]), buffer, 4, out bytesRead);
-					address = (IntPtr)BitConverter.ToInt32(buffer, 0);
-				}
-				int last = offsets.Length > 0 ? offsets[offsets.Length - 1] : 0;
-				if (typeof(T) == typeof(int)) {
-					buffer = BitConverter.GetBytes((int)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 4, out bytesRead);
-				} else if (typeof(T) == typeof(long)) {
-					buffer = BitConverter.GetBytes((long)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 8, out bytesRead);
-				} else if (typeof(T) == typeof(byte)) {
-					buffer = BitConverter.GetBytes((byte)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 1, out bytesRead);
-				} else if (typeof(T) == typeof(short)) {
-					buffer = BitConverter.GetBytes((short)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 2, out bytesRead);
-				} else if (typeof(T) == typeof(float)) {
-					buffer = BitConverter.GetBytes((float)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 4, out bytesRead);
-				} else if (typeof(T) == typeof(double)) {
-					buffer = BitConverter.GetBytes((double)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 8, out bytesRead);
-				} else if (typeof(T) == typeof(bool)) {
-					buffer = BitConverter.GetBytes((bool)((object)value));
-					SafeNativeMethods.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 1, out bytesRead);
-				}
-			} catch { }
-		}
-		public static void WriteBytes(this Process proc, IntPtr addr, byte[] data) {
-			int num = 0;
-			SafeNativeMethods.WriteProcessMemory(proc.Handle, addr, data, data.Length, out num);
-		}
+            int bytesRead;
+            WinAPI.ReadProcessMemory(targetProcess.Handle, address, buffer, numBytes, out bytesRead);
+            return buffer;
+        }
+        public static string Read(this Process targetProcess, IntPtr address, bool normal = true)
+        {
+            if (targetProcess == null || targetProcess.HasExited || address == IntPtr.Zero) { return string.Empty; }
 
-		public static IntPtr[] FindSignatures(this Process targetProcess, params string[] searchStrings) {
-			IntPtr[] returnAddresses = new IntPtr[searchStrings.Length];
-			MemorySignature[] byteCodes = new MemorySignature[searchStrings.Length];
-			for (int i = 0; i < searchStrings.Length; i++) {
-				byteCodes[i] = GetSignature(searchStrings[i]);
-			}
+            int length = Read<int>(targetProcess, address, normal ? 0x8 : 0x4);
+            return Encoding.Unicode.GetString(Read(targetProcess, address + (normal ? 0xc : 0x8), 2 * length));
+        }
+        public static void Write(this Process targetProcess, IntPtr address, int value, params int[] offsets)
+        {
+            if (targetProcess == null || targetProcess.HasExited) { return; }
 
-			try {
-				long minAddress = 0;
-				long maxAddress = 0x7fffffff;
+            int last = OffsetAddress(targetProcess, ref address, offsets);
+            byte[] buffer = BitConverter.GetBytes(value);
+            int bytesWritten;
+            WinAPI.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 4, out bytesWritten);
+        }
+        public static void Write(this Process targetProcess, IntPtr address, long value, params int[] offsets)
+        {
+            if (targetProcess == null || targetProcess.HasExited) { return; }
 
-				MEMORY_BASIC_INFORMATION memInfo;
+            int last = OffsetAddress(targetProcess, ref address, offsets);
+            byte[] buffer = BitConverter.GetBytes(value);
+            int bytesWritten;
+            WinAPI.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 8, out bytesWritten);
+        }
+        public static void Write(this Process targetProcess, IntPtr address, byte value, params int[] offsets)
+        {
+            if (targetProcess == null || targetProcess.HasExited) { return; }
 
-				int totalBytesRead = 0;
-				int foundAddresses = 0;
-				while (minAddress < maxAddress && foundAddresses < searchStrings.Length) {
-					SafeNativeMethods.VirtualQueryEx(targetProcess.Handle, (IntPtr)minAddress, out memInfo, (uint)Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION)));
+            int last = OffsetAddress(targetProcess, ref address, offsets);
+            byte[] buffer = new byte[] { value };
+            int bytesWritten;
+            WinAPI.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 1, out bytesWritten);
+        }
+        public static void Write(this Process targetProcess, IntPtr address, short value, params int[] offsets)
+        {
+            if (targetProcess == null || targetProcess.HasExited) { return; }
 
-					if (memInfo.RegionSize.ToInt32() < 0) { break; }
-					// if this memory chunk is accessible
-					if ((memInfo.Protect & PAGE_EXECUTE_READWRITE) != 0 && (memInfo.Type & MEM_PRIVATE) != 0 && memInfo.State == MEM_COMMIT) {
-						byte[] buffer = new byte[memInfo.RegionSize.ToInt32()];
+            int last = OffsetAddress(targetProcess, ref address, offsets);
+            byte[] buffer = BitConverter.GetBytes(value);
+            int bytesWritten;
+            WinAPI.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 2, out bytesWritten);
+        }
+        public static void Write(this Process targetProcess, IntPtr address, float value, params int[] offsets)
+        {
+            if (targetProcess == null || targetProcess.HasExited) { return; }
 
-						int bytesRead = 0;
-						// read everything in the buffer above
-						if (SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, (IntPtr)memInfo.BaseAddress, buffer, memInfo.RegionSize.ToInt32(), out bytesRead)) {
-							totalBytesRead += bytesRead;
+            int last = OffsetAddress(targetProcess, ref address, offsets);
+            byte[] buffer = BitConverter.GetBytes(value);
+            int bytesWritten;
+            WinAPI.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 4, out bytesWritten);
+        }
+        public static void Write(this Process targetProcess, IntPtr address, double value, params int[] offsets)
+        {
+            if (targetProcess == null || targetProcess.HasExited) { return; }
 
-							for (int i = 0; i < searchStrings.Length; i++) {
-								if (returnAddresses[i] == IntPtr.Zero) {
-									if (SearchMemory(buffer, byteCodes[i], (IntPtr)minAddress, ref returnAddresses[i])) {
-										foundAddresses++;
-									}
-								}
-							}
-						}
-					}
+            int last = OffsetAddress(targetProcess, ref address, offsets);
+            byte[] buffer = BitConverter.GetBytes(value);
+            int bytesWritten;
+            WinAPI.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 8, out bytesWritten);
+        }
+        public static void Write(this Process targetProcess, IntPtr address, bool value, params int[] offsets)
+        {
+            if (targetProcess == null || targetProcess.HasExited) { return; }
 
-					// move to the next memory chunk
-					minAddress += memInfo.RegionSize.ToInt32();
-				}
+            int last = OffsetAddress(targetProcess, ref address, offsets);
+            byte[] buffer = new byte[] { value ? (byte)1 : (byte)0 };
+            int bytesWritten;
+            WinAPI.WriteProcessMemory(targetProcess.Handle, address + last, buffer, 1, out bytesWritten);
+        }
+        public static void Write(this Process targetProcess, IntPtr address, byte[] data, params int[] offsets)
+        {
+            if (targetProcess == null || targetProcess.HasExited) { return; }
 
-			} catch { }
+            int last = OffsetAddress(targetProcess, ref address, offsets);
+            int bytesWritten;
+            WinAPI.WriteProcessMemory(targetProcess.Handle, address + last, data, data.Length, out bytesWritten);
+        }
+        private static int OffsetAddress(this Process targetProcess, ref IntPtr address, params int[] offsets)
+        {
+            bool is64bit = Is64Bit(targetProcess);
+            byte[] buffer = new byte[is64bit ? 8 : 4];
+            int bytesWritten;
+            for (int i = 0; i < offsets.Length - 1; i++)
+            {
+                WinAPI.ReadProcessMemory(targetProcess.Handle, address + offsets[i], buffer, buffer.Length, out bytesWritten);
+                if (is64bit)
+                {
+                    address = (IntPtr)BitConverter.ToInt64(buffer, 0);
+                }
+                else
+                {
+                    address = (IntPtr)BitConverter.ToInt32(buffer, 0);
+                }
+            }
+            return offsets.Length > 0 ? offsets[offsets.Length - 1] : 0;
+        }
 
-			return returnAddresses;
-		}
-		public static List<IntPtr> FindAllSignatures(this Process targetProcess, string searchString) {
-			List<IntPtr> returnAddresses = new List<IntPtr>();
-			MemorySignature byteCode = GetSignature(searchString);
+        public static IntPtr[] FindSignatures(this Process targetProcess, params string[] searchStrings)
+        {
+            IntPtr[] returnAddresses = new IntPtr[searchStrings.Length];
+            MemorySignature[] byteCodes = new MemorySignature[searchStrings.Length];
+            for (int i = 0; i < searchStrings.Length; i++)
+            {
+                byteCodes[i] = GetSignature(searchStrings[i]);
+            }
 
-			try {
-				long minAddress = 0;
-				long maxAddress = 0x7fffffff;
+            long minAddress = 65536;
+            long maxAddress = Is64Bit(targetProcess) ? 140737488289791L : 2147418111L;
+            uint memInfoSize = (uint)Marshal.SizeOf(typeof(MemInfo));
+            MemInfo memInfo;
 
-				MEMORY_BASIC_INFORMATION memInfo;
+            int foundAddresses = 0;
+            while (minAddress < maxAddress && foundAddresses < searchStrings.Length)
+            {
+                WinAPI.VirtualQueryEx(targetProcess.Handle, (IntPtr)minAddress, out memInfo, memInfoSize);
+                long regionSize = (long)memInfo.RegionSize;
+                if (regionSize <= 0) { break; }
 
-				int totalBytesRead = 0;
-				while (minAddress < maxAddress) {
-					SafeNativeMethods.VirtualQueryEx(targetProcess.Handle, (IntPtr)minAddress, out memInfo, (uint)Marshal.SizeOf(typeof(MEMORY_BASIC_INFORMATION)));
+                if ((memInfo.Protect & 0x40) != 0 && (memInfo.Type & 0x20000) != 0 && memInfo.State == 0x1000)
+                {
+                    byte[] buffer = new byte[regionSize];
 
-					// if this memory chunk is accessible
-					if ((memInfo.Protect & PAGE_EXECUTE_READWRITE) != 0 && memInfo.Type == MEM_PRIVATE && memInfo.State == MEM_COMMIT) {
-						byte[] buffer = new byte[memInfo.RegionSize.ToInt32()];
+                    int bytesRead = 0;
+                    if (WinAPI.ReadProcessMemory(targetProcess.Handle, memInfo.BaseAddress, buffer, (int)regionSize, out bytesRead))
+                    {
+                        for (int i = 0; i < searchStrings.Length; i++)
+                        {
+                            if (returnAddresses[i] == IntPtr.Zero)
+                            {
+                                if (SearchMemory(buffer, byteCodes[i], (IntPtr)minAddress, ref returnAddresses[i]))
+                                {
+                                    foundAddresses++;
+                                }
+                            }
+                        }
+                    }
+                }
 
-						int bytesRead = 0;
-						// read everything in the buffer above
-						if (SafeNativeMethods.ReadProcessMemory(targetProcess.Handle, memInfo.BaseAddress, buffer, memInfo.RegionSize.ToInt32(), out bytesRead)) {
-							totalBytesRead += bytesRead;
+                minAddress += regionSize;
+            }
 
-							SearchAllMemory(buffer, byteCode, (IntPtr)minAddress, returnAddresses);
-						}
-					}
+            return returnAddresses;
+        }
+        public static List<IntPtr> FindAllSignatures(this Process targetProcess, string searchString)
+        {
+            List<IntPtr> returnAddresses = new List<IntPtr>();
+            MemorySignature byteCode = GetSignature(searchString);
 
-					// move to the next memory chunk
-					minAddress += memInfo.RegionSize.ToInt32();
-				}
+            long minAddress = 65536;
+            long maxAddress = Is64Bit(targetProcess) ? 140737488289791L : 2147418111L;
+            uint memInfoSize = (uint)Marshal.SizeOf(typeof(MemInfo));
+            MemInfo memInfo;
 
-			} catch { }
+            while (minAddress < maxAddress)
+            {
+                WinAPI.VirtualQueryEx(targetProcess.Handle, (IntPtr)minAddress, out memInfo, memInfoSize);
+                long regionSize = (long)memInfo.RegionSize;
+                if (regionSize <= 0) { break; }
 
-			return returnAddresses;
-		}
-		private static void SearchAllMemory(byte[] buffer, MemorySignature byteCode, IntPtr currentAddress, List<IntPtr> foundAddresses) {
-			byte[] bytes = byteCode.byteCode;
-			byte[] wild = byteCode.wildCards;
-			for (int i = 0, j = 0; i <= buffer.Length - bytes.Length; i++) {
-				int k = i;
-				while (j < bytes.Length && (wild[j] == 1 || buffer[k] == bytes[j])) {
-					k++; j++;
-				}
-				if (j == bytes.Length) {
-					foundAddresses.Add(currentAddress + i + bytes.Length + byteCode.offset);
-				}
-				j = 0;
-			}
-		}
-		private static bool SearchMemory(byte[] buffer, MemorySignature byteCode, IntPtr currentAddress, ref IntPtr foundAddress) {
-			byte[] bytes = byteCode.byteCode;
-			byte[] wild = byteCode.wildCards;
-			for (int i = 0, j = 0; i <= buffer.Length - bytes.Length; i++) {
-				int k = i;
-				while (j < bytes.Length && (wild[j] == 1 || buffer[k] == bytes[j])) {
-					k++; j++;
-				}
-				if (j == bytes.Length) {
-					foundAddress = currentAddress + i + bytes.Length + byteCode.offset;
-					return true;
-				}
-				j = 0;
-			}
-			return false;
-		}
+                if ((memInfo.Protect & 0x40) != 0 && (memInfo.Type & 0x20000) != 0 && memInfo.State == 0x1000)
+                {
+                    byte[] buffer = new byte[regionSize];
 
-		private static MemorySignature GetSignature(string searchString) {
-			int offsetIndex = searchString.IndexOf("|");
-			offsetIndex = offsetIndex < 0 ? searchString.Length : offsetIndex;
+                    int bytesRead = 0;
+                    if (WinAPI.ReadProcessMemory(targetProcess.Handle, memInfo.BaseAddress, buffer, (int)regionSize, out bytesRead))
+                    {
+                        SearchAllMemory(buffer, byteCode, (IntPtr)minAddress, returnAddresses);
+                    }
+                }
 
-			if (offsetIndex % 2 != 0) {
-				Console.WriteLine(searchString + " is of odd length.");
-				return null;
-			}
+                minAddress += regionSize;
+            }
 
-			byte[] byteCode = new byte[offsetIndex / 2];
-			byte[] wildCards = new byte[offsetIndex / 2];
-			for (int i = 0, j = 0; i < offsetIndex; i++) {
-				byte temp = (byte)(((int)searchString[i] - 0x30) & 0x1F);
-				byteCode[j] |= temp > 0x09 ? (byte)(temp - 7) : temp;
-				if (searchString[i] == '?') {
-					wildCards[j] = 1;
-				}
-				if ((i & 1) == 1) {
-					j++;
-				} else {
-					byteCode[j] <<= 4;
-				}
-			}
-			int offset = 0;
-			if (offsetIndex < searchString.Length) {
-				int.TryParse(searchString.Substring(offsetIndex + 1), out offset);
-			}
-			return new MemorySignature(byteCode, wildCards, offset);
-		}
+            return returnAddresses;
+        }
+        private static void SearchAllMemory(byte[] buffer, MemorySignature byteCode, IntPtr currentAddress, List<IntPtr> foundAddresses)
+        {
+            byte[] bytes = byteCode.byteCode;
+            byte[] wild = byteCode.wildCards;
+            for (int i = 0, j = 0; i <= buffer.Length - bytes.Length; i++)
+            {
+                int k = i;
+                while (j < bytes.Length && (wild[j] == 1 || buffer[k] == bytes[j]))
+                {
+                    k++; j++;
+                }
+                if (j == bytes.Length)
+                {
+                    foundAddresses.Add(currentAddress + i + bytes.Length + byteCode.offset);
+                }
+                j = 0;
+            }
+        }
+        private static bool SearchMemory(byte[] buffer, MemorySignature byteCode, IntPtr currentAddress, ref IntPtr foundAddress)
+        {
+            byte[] bytes = byteCode.byteCode;
+            byte[] wild = byteCode.wildCards;
+            for (int i = 0, j = 0; i <= buffer.Length - bytes.Length; i++)
+            {
+                int k = i;
+                while (j < bytes.Length && (wild[j] == 1 || buffer[k] == bytes[j]))
+                {
+                    k++; j++;
+                }
+                if (j == bytes.Length)
+                {
+                    foundAddress = currentAddress + i + bytes.Length + byteCode.offset;
+                    return true;
+                }
+                j = 0;
+            }
+            return false;
+        }
+        public static bool Is64Bit(this Process process)
+        {
+            if (process == null || process.HasExited) { return false; }
+            bool flag;
+            WinAPI.IsWow64Process(process.Handle, out flag);
+            return Environment.Is64BitOperatingSystem && !flag;
+        }
+        public static Module64 MainModule64(this Process p)
+        {
+            Module64[] modules = p.Modules64();
+            return modules == null || modules.Length == 0 ? null : modules[0];
+        }
 
-		private class MemorySignature {
-			public byte[] byteCode;
-			public byte[] wildCards;
-			public int offset;
+        public static Module64[] Modules64(this Process p)
+        {
+            if (ModuleCache.Count > 100) { ModuleCache.Clear(); }
 
-			public MemorySignature(byte[] byteCode, byte[] wildCards, int offset) {
-				this.byteCode = byteCode;
-				this.wildCards = wildCards;
-				this.offset = offset;
-			}
-		}
+            IntPtr[] buffer = new IntPtr[1024];
+            uint cb = (uint)(IntPtr.Size * buffer.Length);
+            uint totalModules;
+            if (!WinAPI.EnumProcessModulesEx(p.Handle, buffer, cb, out totalModules, 3u))
+            {
+                return null;
+            }
+            uint moduleSize = totalModules / (uint)IntPtr.Size;
+            int key = p.StartTime.GetHashCode() + p.Id + (int)moduleSize;
+            if (ModuleCache.ContainsKey(key)) { return ModuleCache[key]; }
 
-		private static class SafeNativeMethods {
-			[DllImport("kernel32.dll", SetLastError = true)]
-			public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int dwSize, out int lpNumberOfBytesRead);
-			[DllImport("kernel32.dll", SetLastError = true)]
-			public static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int dwSize, out int lpNumberOfBytesWritten);
-			[DllImport("kernel32.dll", SetLastError = true)]
-			public static extern int VirtualQueryEx(IntPtr hProcess, IntPtr lpAddress, out MEMORY_BASIC_INFORMATION lpBuffer, uint dwLength);
-		}
-	}
+            List<Module64> list = new List<Module64>();
+            StringBuilder stringBuilder = new StringBuilder(260);
+            int count = 0;
+            while ((long)count < (long)((ulong)moduleSize))
+            {
+                stringBuilder.Clear();
+                if (WinAPI.GetModuleFileNameEx(p.Handle, buffer[count], stringBuilder, (uint)stringBuilder.Capacity) == 0u)
+                {
+                    return list.ToArray();
+                }
+                string fileName = stringBuilder.ToString();
+                stringBuilder.Clear();
+                if (WinAPI.GetModuleBaseName(p.Handle, buffer[count], stringBuilder, (uint)stringBuilder.Capacity) == 0u)
+                {
+                    return list.ToArray();
+                }
+                string moduleName = stringBuilder.ToString();
+                ModuleInfo modInfo = default(ModuleInfo);
+                if (!WinAPI.GetModuleInformation(p.Handle, buffer[count], out modInfo, (uint)Marshal.SizeOf(modInfo)))
+                {
+                    return list.ToArray();
+                }
+                list.Add(new Module64
+                {
+                    FileName = fileName,
+                    BaseAddress = modInfo.BaseAddress,
+                    MemorySize = (int)modInfo.ModuleSize,
+                    EntryPointAddress = modInfo.EntryPoint,
+                    Name = moduleName
+                });
+                count++;
+            }
+            ModuleCache.Add(key, list.ToArray());
+            return list.ToArray();
+        }
+        private static MemorySignature GetSignature(string searchString)
+        {
+            int offsetIndex = searchString.IndexOf("|");
+            offsetIndex = offsetIndex < 0 ? searchString.Length : offsetIndex;
+
+            if (offsetIndex % 2 != 0)
+            {
+                Console.WriteLine(searchString + " is of odd length.");
+                return null;
+            }
+
+            byte[] byteCode = new byte[offsetIndex / 2];
+            byte[] wildCards = new byte[offsetIndex / 2];
+            for (int i = 0, j = 0; i < offsetIndex; i++)
+            {
+                byte temp = (byte)(((int)searchString[i] - 0x30) & 0x1F);
+                byteCode[j] |= temp > 0x09 ? (byte)(temp - 7) : temp;
+                if (searchString[i] == '?')
+                {
+                    wildCards[j] = 1;
+                }
+                if ((i & 1) == 1)
+                {
+                    j++;
+                }
+                else
+                {
+                    byteCode[j] <<= 4;
+                }
+            }
+            int offset = 0;
+            if (offsetIndex < searchString.Length)
+            {
+                int.TryParse(searchString.Substring(offsetIndex + 1), out offset);
+            }
+            return new MemorySignature(byteCode, wildCards, offset);
+        }
+        private class MemorySignature
+        {
+            public byte[] byteCode;
+            public byte[] wildCards;
+            public int offset;
+
+            public MemorySignature(byte[] byteCode, byte[] wildCards, int offset)
+            {
+                this.byteCode = byteCode;
+                this.wildCards = wildCards;
+                this.offset = offset;
+            }
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct MemInfo
+        {
+            public IntPtr BaseAddress;
+            public IntPtr AllocationBase;
+            public uint AllocationProtect;
+            public IntPtr RegionSize;
+            public uint State;
+            public uint Protect;
+            public uint Type;
+        }
+        private static class WinAPI
+        {
+            [DllImport("kernel32.dll", SetLastError = true)]
+            public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int dwSize, out int lpNumberOfBytesRead);
+            [DllImport("kernel32.dll", SetLastError = true)]
+            public static extern bool WriteProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, [Out] byte[] lpBuffer, int dwSize, out int lpNumberOfBytesWritten);
+            [DllImport("kernel32.dll", SetLastError = true)]
+            public static extern int VirtualQueryEx(IntPtr hProcess, IntPtr lpAddress, out MemInfo lpBuffer, uint dwLength);
+            [DllImport("kernel32.dll", SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool IsWow64Process(IntPtr hProcess, [MarshalAs(UnmanagedType.Bool)] out bool wow64Process);
+            [DllImport("psapi.dll", SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool EnumProcessModulesEx(IntPtr hProcess, [Out] IntPtr[] lphModule, uint cb, out uint lpcbNeeded, uint dwFilterFlag);
+            [DllImport("psapi.dll", SetLastError = true)]
+            public static extern uint GetModuleFileNameEx(IntPtr hProcess, IntPtr hModule, [Out] StringBuilder lpBaseName, uint nSize);
+            [DllImport("psapi.dll")]
+            public static extern uint GetModuleBaseName(IntPtr hProcess, IntPtr hModule, [Out] StringBuilder lpBaseName, uint nSize);
+            [DllImport("psapi.dll", SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            public static extern bool GetModuleInformation(IntPtr hProcess, IntPtr hModule, out ModuleInfo lpmodinfo, uint cb);
+        }
+    }
+    public class Module64
+    {
+        public IntPtr BaseAddress { get; set; }
+        public IntPtr EntryPointAddress { get; set; }
+        public string FileName { get; set; }
+        public int MemorySize { get; set; }
+        public string Name { get; set; }
+        public FileVersionInfo FileVersionInfo { get { return FileVersionInfo.GetVersionInfo(FileName); } }
+        public override string ToString()
+        {
+            return Name ?? base.ToString();
+        }
+    }
+    [StructLayout(LayoutKind.Sequential)]
+    public struct ModuleInfo
+    {
+        public IntPtr BaseAddress;
+        public uint ModuleSize;
+        public IntPtr EntryPoint;
+    }
 }
