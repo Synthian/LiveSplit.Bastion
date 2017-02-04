@@ -61,14 +61,14 @@ namespace LiveSplit.Bastion.Memory
                 return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xdc);
             }
         }
-        /*public float targetX()
+        public float targetX()
         {
             return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0xc, 0xd8);
         }
         public float targetY()
         {
             return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0xc, 0xdc);
-        }*/
+        }
         public int MapPointer()
         {
             return nextMap.Value.ToInt32();

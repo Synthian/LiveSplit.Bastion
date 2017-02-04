@@ -15,11 +15,10 @@ namespace LiveSplit.Bastion {
 		public string ComponentName { get { return "Bastion Autosplitter"; } }
 		public TimerModel Model { get; set; }
 		public IDictionary<string, Action> ContextMenuControls { get { return null; } }
-		internal static string[] keys = { "CurrentSplit", "AllowInput", "MapPointer", "NextMap", "PlayerUnit", "PosX", "PosY" };
+		internal static string[] keys = { "CurrentSplit", "AllowInput", "MapPointer", "NextMap", "PlayerUnit", "PosX", "PosY", "TargetX", "TargetY" };
 		private BastionMemory mem;
 		private int currentSplit = 0, lastLogCheck = 0;
 		private bool hasLog = false, oldAllowInput = false;
-        private DateTime EndLoadTime;
 		private string oldMap = "ProtoIntro01.map";
 		private bool noModel = true;
 		private Dictionary<string, string> currentValues = new Dictionary<string, string>();
@@ -49,15 +48,10 @@ namespace LiveSplit.Bastion {
             double playerX = (double)mem.PlayerX();
             double playerY = (double)mem.PlayerY();
 
-            //fix for the early end01 splits (hopefully!)
-            if (nextMap == "End01.map" && oldMap != "End01.map") {
-                EndLoadTime = DateTime.Now;
-            }
-
 			if (currentSplit == 0 && settings.Start) {
 				shouldSplit = oldMap == "ProtoIntro01.map" && !oldAllowInput && allowInput;
 			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
-				if (settings.End && nextMap == "End01.map" && oldAllowInput && !allowInput && DateTime.Now.Subtract(EndLoadTime).TotalSeconds > 10) {
+				if (settings.End && nextMap == "End01.map" && oldAllowInput && !allowInput && inRange(2404, 2366, playerX, playerY)) {
 					shouldSplit = true;
 				}
 				if (settings.Split) {
@@ -212,7 +206,9 @@ namespace LiveSplit.Bastion {
 						case "PlayerUnit": curr = mem.PlayerUnit().ToString(); break;
 						case "PosX": curr = mem.PlayerX().ToString("0"); break;
 						case "PosY": curr = mem.PlayerY().ToString("0"); break;
-						default: curr = ""; break;
+                        case "TargetX": curr = mem.targetX().ToString("0"); break;
+                        case "TargetY": curr = mem.targetY().ToString("0"); break;
+                        default: curr = ""; break;
 					}
 
 					if (!prev.Equals(curr)) {

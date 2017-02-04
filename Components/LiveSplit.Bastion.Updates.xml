@@ -1,5 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+<update version="4.1.0.0">
+		<files>
+			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
+		</files>
+		<changelog>
+			<change>Fixed all anomalies with Heart of the Bastion splitting. Feel free to talk to Zia and Rucks at will!</change>
+		</changelog>
+	</update>
 	<update version="4.0.0.0">
 		<files>
 			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
