@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
-	update version="4.2.0.0">
+	<update version="4.2.0.0">
 		<files>
 			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
 		</files>
