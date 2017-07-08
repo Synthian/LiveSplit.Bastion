@@ -10,9 +10,9 @@ namespace LiveSplit.Bastion.Settings
         public bool End { get; set; }
         public bool Split { get; set; }
         public bool Tazal { get; set; }
-        public bool Classic { get; set; }
         public bool Ram { get; set; }
         public bool SoleRegret { get; set; }
+        public bool IL { get; set; }
         private BastionComponent component;
         private bool isLoading;
 
@@ -22,11 +22,14 @@ namespace LiveSplit.Bastion.Settings
             InitializeComponent();
 
             //Defaults
-            Classic = true;
             Reset = true;
             Start = true;
             End = true;
             Split = true;
+            Tazal = true;
+            Ram = false;
+            SoleRegret = false;
+            IL = false;
 
             component = comp;
             isLoading = false;
@@ -41,26 +44,23 @@ namespace LiveSplit.Bastion.Settings
         public void LoadSettings()
         {
             chkEnd.Checked = End;
-            chkClassic.Checked = Classic;
             chkStart.Checked = Start;
             chkReset.Checked = Reset;
             chkSplit.Checked = Split;
             chkTazal.Checked = Tazal;
             chkSoleRegret.Checked = SoleRegret;
             chkRam.Checked = Ram;
+            chkIL.Checked = IL;
         }
         private void chkBox_CheckedChanged(object sender, EventArgs e)
         {
-            chkTazal.Enabled = chkSplit.Checked;
-            chkRam.Enabled = chkSplit.Checked;
-            chkSoleRegret.Enabled = chkSplit.Checked;
-
-            if (!chkSplit.Checked)
-            {
-                chkTazal.Checked = false;
-                chkRam.Checked = false;
-                chkSoleRegret.Checked = false;
-            }
+            chkReset.Enabled = !chkIL.Checked;
+            chkStart.Enabled = !chkIL.Checked;
+            chkEnd.Enabled = !chkIL.Checked;
+            chkSplit.Enabled = !chkIL.Checked;
+            chkTazal.Enabled = chkSplit.Checked && !chkIL.Checked;
+            chkRam.Enabled = chkSplit.Checked && !chkIL.Checked;
+            chkSoleRegret.Enabled = chkSplit.Checked && !chkIL.Checked;
 
             UpdateSplits();
         }
@@ -70,7 +70,6 @@ namespace LiveSplit.Bastion.Settings
 
             SoleRegret = chkSoleRegret.Checked;
             Ram = chkRam.Checked;
-            Classic = chkClassic.Checked;
             Reset = chkReset.Checked;
             Start = chkStart.Checked;
             End = chkEnd.Checked;
@@ -83,12 +82,12 @@ namespace LiveSplit.Bastion.Settings
 
             SetSetting(document, xmlSettings, chkSoleRegret, "SoleRegret");
             SetSetting(document, xmlSettings, chkRam, "Ram");
-            SetSetting(document, xmlSettings, chkClassic, "Classic");
             SetSetting(document, xmlSettings, chkReset, "Reset");
             SetSetting(document, xmlSettings, chkStart, "Start");
             SetSetting(document, xmlSettings, chkEnd, "End");
             SetSetting(document, xmlSettings, chkSplit, "Split");
             SetSetting(document, xmlSettings, chkTazal, "Tazal");
+            SetSetting(document, xmlSettings, chkIL, "IL");
 
             return xmlSettings;
         }
@@ -102,12 +101,12 @@ namespace LiveSplit.Bastion.Settings
         {
             SoleRegret = GetSetting(settings, "//SoleRegret");
             Ram = GetSetting(settings, "//Ram");
-            Classic = GetSetting(settings, "//Classic");
             Reset = GetSetting(settings, "//Reset");
             Start = GetSetting(settings, "//Start");
             End = GetSetting(settings, "//End");
             Split = GetSetting(settings, "//Split");
             Tazal = GetSetting(settings, "//Tazal");
+            IL = GetSetting(settings, "//IL");
         }
         private bool GetSetting(XmlNode settings, string name)
         {

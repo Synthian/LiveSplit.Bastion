@@ -15,7 +15,7 @@ namespace LiveSplit.Bastion {
 		public string ComponentName { get { return "Bastion Autosplitter"; } }
 		public TimerModel Model { get; set; }
 		public IDictionary<string, Action> ContextMenuControls { get { return null; } }
-		internal static string[] keys = { "CurrentSplit", "AllowInput", "MapPointer", "NextMap", "PlayerUnit", "PosX", "PosY", "TargetX", "TargetY" };
+		internal static string[] keys = { "CurrentSplit", "AllowInput", "MapPointer", "NextMap", "PlayerUnit", "TargetX", "TargetY" };
 		private BastionMemory mem;
 		private int currentSplit = 0, lastLogCheck = 0;
 		private bool hasLog = false, oldAllowInput = false;
@@ -45,120 +45,69 @@ namespace LiveSplit.Bastion {
             bool shouldSplit = false;
             bool allowInput = mem.AllowInput();
             string nextMap = mem.NextMapName() ?? oldMap;
-            double playerX = (double)mem.PlayerX();
-            double playerY = (double)mem.PlayerY();
+            double playerX = (double) mem.PlayerX();
+            double playerY = (double) mem.PlayerY();
 
-			if (currentSplit == 0 && settings.Start) {
-				shouldSplit = oldMap == "ProtoIntro01.map" && !oldAllowInput && allowInput;
-			} else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
-				if (settings.End && nextMap == "End01.map" && oldAllowInput && !allowInput && inRange(2404, 2366, playerX, playerY)) {
-					shouldSplit = true;
-				}
-				if (settings.Split) {
-					if (settings.Ram && oldAllowInput && !allowInput && nextMap == "FinalRam01.map" && inRange(3747, 2541, playerX, playerY)) {
-						shouldSplit = true;
-					} else if (settings.Tazal && nextMap == "FinalRam01.map" && oldMap != "FinalRam01.map") {
-						shouldSplit = true;
-					} else if (settings.SoleRegret && nextMap == "ProtoIntro01b.map" && oldMap != "ProtoIntro01b.map") {
-						shouldSplit = true;
-					} else if (settings.Classic) {
-						if (oldAllowInput && !allowInput) {
-							switch (nextMap) {
-								case "ProtoIntro01b.map":
-									if (playerX > 17070 && playerY < 7930)
-										shouldSplit = true;
-									break;
-								case "Crossroads01.map":
-									if (inRange(9540, 4898, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Holdout01.map":
-									if (playerX > 5650 && playerY > 3380)
-										shouldSplit = true;
-									break;
-								case "Falling01.map":
-									if (inRange(7658, 10508, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Survivor01.map":
-									if (inRange(15277, 7691, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Siege01.map":
-									if (inRange(14918, 6605, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Shrine01.map":
-									if (inRange(4386, 6999, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Moving01.map":
-									if (inRange(34843, 2992, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Survivor02.map":
-									if (inRange(4378, 5291, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Crossroads02.map":
-									if (inRange(10593, 10677, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Scenes02.map":
-									if (inRange(4465, 5397, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Hunt01.map":
-									if (inRange(10177, 11452, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Platforms01.map":
-									if (inRange(10167, 9883, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Scorched01.map":
-									if (inRange(423, 2633, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Fortress01.map":
-									if (inRange(7915, 1759, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Gauntlet01.map":
-									if (inRange(14331, 6965, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Voyage01.map":
-									if (inRange(19339, 5754, playerX, playerY))
-										shouldSplit = true;
-									break;
-								case "Rescue01.map":
-									if (inRange(5154, 3755, playerX, playerY))
-										shouldSplit = true;
-									break;
-								default:
-									break;
-							}
-						} else if (nextMap == "ProtoTown03.map" && oldMap == "FinalZulf01.map")
-							shouldSplit = true;
-					} else {
-						if (nextMap == "ProtoTown03.map" && oldMap != "ProtoTown03.map") {
-							if (oldMap != "Attack01.map" && oldMap != "") {
-								shouldSplit = true;
-							}
-						} else if (nextMap == "Survivor02.map" && oldMap != "Survivor02.map") {
-							if (oldMap != "ProtoTown03.map") {
-								shouldSplit = true;
-							}
-						} else if (nextMap == "Attack01.map" && oldMap != "Attack01.map") {
-							shouldSplit = true;
-						}
-					}
-				}
-			}
+            if (settings.IL)
+            {
+                if (currentSplit == 0)
+                {
+                    //check start conditions
+                    shouldSplit = ilStarted(nextMap, allowInput);
 
-			HandleSplit(shouldSplit, nextMap == "ProtoIntro01.map" && noModel);
+                }
+                else if (Model.CurrentState.CurrentPhase == TimerPhase.Running)
+                {
+                    //check general level end conditions
+                    shouldSplit = generalLevelEnded(nextMap, playerX, playerY, allowInput);
+                }
 
+                //handle split
+                HandleSplit(shouldSplit, false);
+            }
+            else
+            {
+                if (currentSplit == 0 && settings.Start)
+                {
+                    //check start conditions
+                    shouldSplit = oldMap == "ProtoIntro01.map" && !oldAllowInput && allowInput;
+                }
+                else if (Model.CurrentState.CurrentPhase == TimerPhase.Running)
+                {
+                    //check End of Game
+                    if (settings.End && nextMap == "End01.map" && oldAllowInput && !allowInput && inRange(2404, 2366, playerX, playerY))
+                    {
+                        shouldSplit = true;
+                    }
+                    if (settings.Split)
+                    {
+                        //check run specific split conditions
+                        if (settings.Ram && oldAllowInput && !allowInput && nextMap == "FinalRam01.map" && inRange(3747, 2541, playerX, playerY))
+                        {
+                            shouldSplit = true;
+                        }
+                        else if (settings.Tazal && nextMap == "FinalRam01.map" && oldMap != "FinalRam01.map")
+                        {
+                            shouldSplit = true;
+                        }
+                        else if (settings.SoleRegret && nextMap == "ProtoIntro01b.map" && oldMap != "ProtoIntro01b.map")
+                        {
+                            shouldSplit = true;
+                        }
+                        //check general level end conditions
+                        else
+                        {
+                            shouldSplit = generalLevelEnded(nextMap, playerX, playerY, allowInput);
+                        }
+                    }
+                }
+
+                //handle split
+                HandleSplit(shouldSplit, nextMap == "ProtoIntro01.map" && noModel);
+
+            }
+
+            //update variables
 			if (mem.PlayerUnit() == 0) {
 				noModel = true;
 			} else {
@@ -167,6 +116,204 @@ namespace LiveSplit.Bastion {
 			oldMap = nextMap;
 			oldAllowInput = allowInput;
 		}
+
+        private bool ilStarted(string nextMap, bool allowInput)
+        {
+            if (oldMap == "ProtoIntro01.map" && !oldAllowInput && allowInput)
+            {
+                return true;
+            }
+            else if (oldMap == "ProtoTown03.map")
+            {
+                switch (nextMap)
+                {
+                    case "Crossroads01.map":
+                        return true;
+                    case "Holdout01.map":
+                        return true;
+                    case "Falling01.map":
+                        return true;
+                    case "Survivor01.map":
+                        return true;
+                    case "Siege01.map":
+                        return true;
+                    case "Shrine01.map":
+                        return true;
+                    case "Moving01.map":
+                        return true;
+                    case "Survivor02.map":
+                        return true;
+                    case "Crossroads02.map":
+                        return true;
+                    case "Scenes02.map":
+                        return true;
+                    case "Hunt01.map":
+                        return true;
+                    case "Platforms01.map":
+                        return true;
+                    case "Scorched01.map":
+                        return true;
+                    case "Fortress01.map":
+                        return true;
+                    case "Gauntlet01.map":
+                        return true;
+                    case "Voyage01.map":
+                        return true;
+                    case "Rescue01.map":
+                        return true;
+                    case "FinalArena01.map":
+                        return true;
+                    case "Onslaught01.map":
+                        return true;
+                    case "Onslaught02.map":
+                        return true;
+                    case "Onslaught03.map":
+                        return true;
+                    case "Onslaught04.map":
+                        return true;
+                    default:
+                        return false;
+                }
+            } else return false;
+        }
+            
+
+        private bool generalLevelEnded(string nextMap, double playerX, double playerY, bool allowInput)
+        {
+            if (oldAllowInput && !allowInput)
+            {
+                switch (nextMap)
+                {
+                    case "ProtoIntro01b.map":
+                        if (playerX > 17070 && playerY < 7930)
+                            return true;
+                        break;
+                    case "Crossroads01.map":
+                        if (inRange(9540, 4898, playerX, playerY))
+                            return true;
+                        break;
+                    case "Holdout01.map":
+                        if (playerX > 5650 && playerY > 3380)
+                            return true;
+                        break;
+                    case "Falling01.map":
+                        if (inRange(7658, 10508, playerX, playerY))
+                            return true;
+                        break;
+                    case "Survivor01.map":
+                        if (inRange(15277, 7691, playerX, playerY))
+                            return true;
+                        break;
+                    case "Siege01.map":
+                        if (inRange(14918, 6605, playerX, playerY))
+                            return true;
+                        break;
+                    case "Shrine01.map":
+                        if (inRange(4386, 6999, playerX, playerY))
+                            return true;
+                        break;
+                    case "Moving01.map":
+                        if (inRange(34843, 2992, playerX, playerY))
+                            return true;
+                        break;
+                    case "Survivor02.map":
+                        if (inRange(4378, 5291, playerX, playerY))
+                            return true;
+                        break;
+                    case "Crossroads02.map":
+                        if (inRange(10593, 10677, playerX, playerY))
+                            return true;
+                        break;
+                    case "Scenes02.map":
+                        if (inRange(4465, 5397, playerX, playerY))
+                            return true;
+                        break;
+                    case "Hunt01.map":
+                        if (inRange(10177, 11452, playerX, playerY))
+                            return true;
+                        break;
+                    case "Platforms01.map":
+                        if (inRange(10167, 9883, playerX, playerY))
+                            return true;
+                        break;
+                    case "Scorched01.map":
+                        if (inRange(423, 2633, playerX, playerY))
+                            return true;
+                        break;
+                    case "Fortress01.map":
+                        if (inRange(7915, 1759, playerX, playerY))
+                            return true;
+                        break;
+                    case "Gauntlet01.map":
+                        if (inRange(14331, 6965, playerX, playerY))
+                            return true;
+                        break;
+                    case "Voyage01.map":
+                        if (inRange(19339, 5754, playerX, playerY))
+                            return true;
+                        break;
+                    case "Rescue01.map":
+                        if (inRange(5154, 3755, playerX, playerY))
+                            return true;
+                        break;
+                    case "Challenge01.map":
+                        if (inRange(5021, 6801, playerX, playerY))
+                            return true;
+                        break;
+                    case "Challenge02.map":
+                        if (inRange(5021, 6799, playerX, playerY))
+                            return true;
+                        break;
+                    case "Challenge03.map":
+                        if (inRange(8731, 2403, playerX, playerY))
+                            return true;
+                        break;
+                    case "Challenge04.map":
+                        if (inRange(6034, 5846, playerX, playerY))
+                            return true;
+                        break;
+                    case "Challenge05.map":
+                        if (inRange(5474, 6895, playerX, playerY))
+                            return true;
+                        break;
+                    case "Challenge06.map":
+                        if (inRange(5165, 4396, playerX, playerY))
+                            return true;
+                        break;
+                    case "Challenge07.map":
+                        if (inRange(5573, 5946, playerX, playerY))
+                            return true;
+                        break;
+                    case "Challenge08.map":
+                        if (inRange(5500, 6112, playerX, playerY))
+                            return true;
+                        break;
+                    case "Challenge09.map":
+                        if (inRange(5569, 3626, playerX, playerY))
+                            return true;
+                        break;
+                    case "Challenge10.map":
+                        if (inRange(5586, 6422, playerX, playerY))
+                            return true;
+                        break;
+                    case "Challenge11.map":
+                        if (inRange(5101, 5780, playerX, playerY))
+                            return true;
+                        break;
+                    case "Challenge12.map":
+                        if (inRange(3565, 5570, playerX, playerY))
+                            return true;
+                        break;
+                    default:
+                        return false;
+                }
+                return false;
+            }
+            else if (nextMap == "ProtoTown03.map" && (oldMap == "FinalZulf01.map" || oldMap.Contains("Onslaught")))
+                return true;
+            else
+                return false;
+        }
 
 		private bool inRange(double ThingX, double ThingY, double posX, double posY) {
 			double dist = Math.Sqrt(Math.Pow((ThingX - posX), 2) + Math.Pow((ThingY - posY), 2));
