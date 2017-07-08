@@ -75,6 +75,7 @@ namespace LiveSplit.Bastion.Settings
             End = chkEnd.Checked;
             Split = chkSplit.Checked;
             Tazal = chkTazal.Checked;
+            IL = chkIL.Checked;
         }
         public XmlNode UpdateSettings(XmlDocument document)
         {
