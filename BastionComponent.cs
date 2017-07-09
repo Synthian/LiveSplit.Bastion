@@ -79,7 +79,7 @@ namespace LiveSplit.Bastion {
                     {
                         shouldSplit = true;
                     }
-                    if (settings.Split)
+                    else if (settings.Split)
                     {
                         //check run specific split conditions
                         if (settings.Ram && oldAllowInput && !allowInput && nextMap == "FinalRam01.map" && inRange(3747, 2541, playerX, playerY))
@@ -304,15 +304,12 @@ namespace LiveSplit.Bastion {
                         if (inRange(3565, 5570, playerX, playerY))
                             return true;
                         break;
-                    default:
-                        return false;
                 }
-                return false;
             }
-            else if (nextMap == "ProtoTown03.map" && (oldMap == "FinalZulf01.map" || oldMap.Contains("Onslaught")))
+            if (nextMap == "ProtoTown03.map" && (oldMap == "FinalZulf01.map" || oldMap.Contains("Onslaught")))
                 return true;
-            else
-                return false;
+
+            return false;
         }
 
 		private bool inRange(double ThingX, double ThingY, double posX, double posY) {
