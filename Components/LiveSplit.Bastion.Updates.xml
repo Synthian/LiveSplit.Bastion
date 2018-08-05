@@ -1,5 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+  <update version="5.0.0.0">
+    <files>
+      <file path="Components/LiveSplit.Bastion.dll" status="changed"/>
+    </files>
+    <changelog>
+      <change>Removed level load splitting, added IL Mode, and merged the "Split" and "End" settings into one (Just known as "Split")</change>
+    </changelog>
+  </update>
 	<update version="4.2.0.0">
 		<files>
 			<file path="Components/LiveSplit.Bastion.dll" status="changed"/>
