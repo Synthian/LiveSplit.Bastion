@@ -26,15 +26,14 @@
             this.components = new System.ComponentModel.Container();
             this.flowMain = new System.Windows.Forms.FlowLayoutPanel();
             this.flowOptions = new System.Windows.Forms.FlowLayoutPanel();
-            this.chkClassic = new System.Windows.Forms.CheckBox();
+            this.chkIL = new System.Windows.Forms.CheckBox();
             this.chkStart = new System.Windows.Forms.CheckBox();
-            this.chkEnd = new System.Windows.Forms.CheckBox();
             this.chkReset = new System.Windows.Forms.CheckBox();
             this.chkSplit = new System.Windows.Forms.CheckBox();
+            this.chkSoleRegret = new System.Windows.Forms.CheckBox();
             this.chkTazal = new System.Windows.Forms.CheckBox();
             this.chkRam = new System.Windows.Forms.CheckBox();
             this.toolTips = new System.Windows.Forms.ToolTip(this.components);
-            this.chkSoleRegret = new System.Windows.Forms.CheckBox();
             this.flowMain.SuspendLayout();
             this.flowOptions.SuspendLayout();
             this.SuspendLayout();
@@ -49,42 +48,45 @@
             this.flowMain.Location = new System.Drawing.Point(0, 0);
             this.flowMain.Margin = new System.Windows.Forms.Padding(0);
             this.flowMain.Name = "flowMain";
-            this.flowMain.Size = new System.Drawing.Size(279, 107);
+            this.flowMain.Size = new System.Drawing.Size(354, 195);
             this.flowMain.TabIndex = 0;
             this.flowMain.WrapContents = false;
             // 
             // flowOptions
             // 
-            this.flowOptions.Controls.Add(this.chkClassic);
+            this.flowOptions.Controls.Add(this.chkIL);
             this.flowOptions.Controls.Add(this.chkStart);
-            this.flowOptions.Controls.Add(this.chkEnd);
             this.flowOptions.Controls.Add(this.chkReset);
             this.flowOptions.Controls.Add(this.chkSplit);
             this.flowOptions.Controls.Add(this.chkSoleRegret);
             this.flowOptions.Controls.Add(this.chkTazal);
             this.flowOptions.Controls.Add(this.chkRam);
+            this.flowMain.SetFlowBreak(this.flowOptions, true);
+            this.flowOptions.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowOptions.Location = new System.Drawing.Point(0, 0);
             this.flowOptions.Margin = new System.Windows.Forms.Padding(0);
             this.flowOptions.Name = "flowOptions";
-            this.flowOptions.Size = new System.Drawing.Size(279, 107);
+            this.flowOptions.Size = new System.Drawing.Size(354, 195);
             this.flowOptions.TabIndex = 0;
             // 
-            // chkClassic
+            // chkIL
             // 
-            this.chkClassic.AutoSize = true;
-            this.chkClassic.Location = new System.Drawing.Point(3, 3);
-            this.chkClassic.Name = "chkClassic";
-            this.chkClassic.Size = new System.Drawing.Size(242, 17);
-            this.chkClassic.TabIndex = 10;
-            this.chkClassic.Text = "Split using the Skyway method (Classic timing)";
-            this.toolTips.SetToolTip(this.chkClassic, "This is the way that most people split.");
-            this.chkClassic.UseVisualStyleBackColor = true;
-            this.chkClassic.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
+            this.chkIL.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkIL.AutoSize = true;
+            this.flowOptions.SetFlowBreak(this.chkIL, true);
+            this.chkIL.Location = new System.Drawing.Point(3, 3);
+            this.chkIL.Name = "chkIL";
+            this.chkIL.Size = new System.Drawing.Size(65, 17);
+            this.chkIL.TabIndex = 13;
+            this.chkIL.Text = "IL Mode";
+            this.chkIL.UseVisualStyleBackColor = true;
+            this.chkIL.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
             // 
             // chkStart
             // 
             this.chkStart.AutoSize = true;
-            this.chkStart.Location = new System.Drawing.Point(3, 26);
+            this.chkStart.Location = new System.Drawing.Point(74, 3);
             this.chkStart.Name = "chkStart";
             this.chkStart.Size = new System.Drawing.Size(48, 17);
             this.chkStart.TabIndex = 7;
@@ -93,23 +95,10 @@
             this.chkStart.UseVisualStyleBackColor = true;
             this.chkStart.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
             // 
-            // chkEnd
-            // 
-            this.chkEnd.AutoSize = true;
-            this.chkEnd.Location = new System.Drawing.Point(57, 26);
-            this.chkEnd.Name = "chkEnd";
-            this.chkEnd.Size = new System.Drawing.Size(45, 17);
-            this.chkEnd.TabIndex = 1;
-            this.chkEnd.Text = "End";
-            this.toolTips.SetToolTip(this.chkEnd, "Splits when you lose control in the Heart of the Bastion. It will split early if " +
-        "you choose a dialogue option.");
-            this.chkEnd.UseVisualStyleBackColor = true;
-            this.chkEnd.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
-            // 
             // chkReset
             // 
             this.chkReset.AutoSize = true;
-            this.chkReset.Location = new System.Drawing.Point(108, 26);
+            this.chkReset.Location = new System.Drawing.Point(74, 26);
             this.chkReset.Name = "chkReset";
             this.chkReset.Size = new System.Drawing.Size(54, 17);
             this.chkReset.TabIndex = 8;
@@ -121,7 +110,8 @@
             // chkSplit
             // 
             this.chkSplit.AutoSize = true;
-            this.chkSplit.Location = new System.Drawing.Point(168, 26);
+            this.flowOptions.SetFlowBreak(this.chkSplit, true);
+            this.chkSplit.Location = new System.Drawing.Point(74, 49);
             this.chkSplit.Name = "chkSplit";
             this.chkSplit.Size = new System.Drawing.Size(46, 17);
             this.chkSplit.TabIndex = 9;
@@ -130,9 +120,20 @@
             this.chkSplit.UseVisualStyleBackColor = true;
             this.chkSplit.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
             // 
+            // chkSoleRegret
+            // 
+            this.chkSoleRegret.Location = new System.Drawing.Point(134, 3);
+            this.chkSoleRegret.Name = "chkSoleRegret";
+            this.chkSoleRegret.Size = new System.Drawing.Size(133, 17);
+            this.chkSoleRegret.TabIndex = 12;
+            this.chkSoleRegret.Text = "Split after Sole Regret";
+            this.toolTips.SetToolTip(this.chkSoleRegret, "Splits when you exit the Sole Regret (Rondy\'s Bar)");
+            this.chkSoleRegret.UseVisualStyleBackColor = true;
+            this.chkSoleRegret.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
+            // 
             // chkTazal
             // 
-            this.chkTazal.Location = new System.Drawing.Point(142, 49);
+            this.chkTazal.Location = new System.Drawing.Point(134, 26);
             this.chkTazal.Name = "chkTazal";
             this.chkTazal.Size = new System.Drawing.Size(111, 17);
             this.chkTazal.TabIndex = 6;
@@ -144,7 +145,7 @@
             // 
             // chkRam
             // 
-            this.chkRam.Location = new System.Drawing.Point(3, 72);
+            this.chkRam.Location = new System.Drawing.Point(134, 49);
             this.chkRam.Name = "chkRam";
             this.chkRam.Size = new System.Drawing.Size(215, 21);
             this.chkRam.TabIndex = 11;
@@ -152,17 +153,6 @@
             this.toolTips.SetToolTip(this.chkRam, "As done in valentinoIAN\'s ASL runs");
             this.chkRam.UseVisualStyleBackColor = true;
             this.chkRam.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
-            // 
-            // chkSoleRegret
-            // 
-            this.chkSoleRegret.Location = new System.Drawing.Point(3, 49);
-            this.chkSoleRegret.Name = "chkSoleRegret";
-            this.chkSoleRegret.Size = new System.Drawing.Size(133, 17);
-            this.chkSoleRegret.TabIndex = 12;
-            this.chkSoleRegret.Text = "Split after Sole Regret";
-            this.toolTips.SetToolTip(this.chkSoleRegret, "Splits when you exit the Sole Regret (Rondy\'s Bar)");
-            this.chkSoleRegret.UseVisualStyleBackColor = true;
-            this.chkSoleRegret.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
             // 
             // BastionSettings
             // 
@@ -174,7 +164,7 @@
             this.Controls.Add(this.flowMain);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "BastionSettings";
-            this.Size = new System.Drawing.Size(279, 107);
+            this.Size = new System.Drawing.Size(354, 195);
             this.Load += new System.EventHandler(this.Settings_Load);
             this.flowMain.ResumeLayout(false);
             this.flowOptions.ResumeLayout(false);
@@ -187,14 +177,13 @@
 		#endregion
 		private System.Windows.Forms.FlowLayoutPanel flowMain;
 		private System.Windows.Forms.FlowLayoutPanel flowOptions;
-		private System.Windows.Forms.CheckBox chkEnd;
 		private System.Windows.Forms.CheckBox chkTazal;
         private System.Windows.Forms.ToolTip toolTips;
         private System.Windows.Forms.CheckBox chkStart;
         private System.Windows.Forms.CheckBox chkSplit;
         private System.Windows.Forms.CheckBox chkReset;
-        private System.Windows.Forms.CheckBox chkClassic;
         private System.Windows.Forms.CheckBox chkRam;
         private System.Windows.Forms.CheckBox chkSoleRegret;
+        private System.Windows.Forms.CheckBox chkIL;
     }
 }

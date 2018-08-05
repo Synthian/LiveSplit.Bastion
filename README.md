@@ -3,20 +3,19 @@ By **DevilSquirrel**, valentinoIAN, and Vulajin
 
 ## What it Does
 
-The autosplitter is currently capable of starting and ending your splits, resetting your splits whenever you start a new game, as well as splitting whenever you use a Skyway or end a level by other means (Falling off Wharf District, for example). The Splitter can also split at two special locations, and split on loading screens instead of Skyway use. 
+The autosplitter is currently capable of starting and ending your splits, resetting your splits whenever you start a new game, as well as splitting whenever you use a Skyway or end a level by other means (Falling off Wharf District, for example). The splitter can also split at a few special locations (like picking up the Battering Ram). There is now an IL mode for official individual level timings.
 
 ## Options (In Layout Settings)
 
-**Classic timing** - If this is checked, the splits will go off whenever you lose control at the end of each level (i.e. using a Skyway). If this is unchecked, splits will be triggered when the level load screen begins.  
+**IL Mode** - If this is checked, your (single) split will start when you enter a level from the Bastion, and will end when exiting. Resets are all manual. Turning IL mode on disables all other settings.  
 
 **Start** - Toggles automatically starting splits.  
-**End** - Toggles ending your splits upon input being disabled at the end of the game.  
 **Reset** - Toggles automatically resetting.  
-**Split** - Toggles splitting after completing each level.  
+**Split** - Toggles splitting after completing each level (and ending the game).  
 
-**Split after Sole Regret** - Toggles splitting when you leave Rondy's Bar.
+**Split after Sole Regret** - Toggles splitting when you leave Rondy's Bar.  
 **Split Tazal I** - Toggles splitting when you load the map with the Battering Ram pickup on it.  
-**Split upon picking up the Battering Ram** - Toggles splitting upon ... picking up the Battering Ram.  
+**Split upon picking up the Battering Ram** - Toggles splitting upon picking up the Battering Ram.  
 
 
 ## How to Install

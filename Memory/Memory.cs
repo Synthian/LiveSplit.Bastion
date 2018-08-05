@@ -1,8 +1,13 @@
-﻿using System;
+﻿// Treat this as "black box" code provided by DevilSquirrel
+// Handles the actual memory accessing functionality
+
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
+
 namespace LiveSplit.Bastion.Memory
 {
     public static class MemoryReader
