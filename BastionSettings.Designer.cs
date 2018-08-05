@@ -26,15 +26,14 @@
             this.components = new System.ComponentModel.Container();
             this.flowMain = new System.Windows.Forms.FlowLayoutPanel();
             this.flowOptions = new System.Windows.Forms.FlowLayoutPanel();
+            this.chkIL = new System.Windows.Forms.CheckBox();
             this.chkStart = new System.Windows.Forms.CheckBox();
-            this.chkEnd = new System.Windows.Forms.CheckBox();
             this.chkReset = new System.Windows.Forms.CheckBox();
             this.chkSplit = new System.Windows.Forms.CheckBox();
             this.chkSoleRegret = new System.Windows.Forms.CheckBox();
             this.chkTazal = new System.Windows.Forms.CheckBox();
             this.chkRam = new System.Windows.Forms.CheckBox();
             this.toolTips = new System.Windows.Forms.ToolTip(this.components);
-            this.chkIL = new System.Windows.Forms.CheckBox();
             this.flowMain.SuspendLayout();
             this.flowOptions.SuspendLayout();
             this.SuspendLayout();
@@ -57,7 +56,6 @@
             // 
             this.flowOptions.Controls.Add(this.chkIL);
             this.flowOptions.Controls.Add(this.chkStart);
-            this.flowOptions.Controls.Add(this.chkEnd);
             this.flowOptions.Controls.Add(this.chkReset);
             this.flowOptions.Controls.Add(this.chkSplit);
             this.flowOptions.Controls.Add(this.chkSoleRegret);
@@ -71,6 +69,20 @@
             this.flowOptions.Size = new System.Drawing.Size(354, 195);
             this.flowOptions.TabIndex = 0;
             // 
+            // chkIL
+            // 
+            this.chkIL.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkIL.AutoSize = true;
+            this.flowOptions.SetFlowBreak(this.chkIL, true);
+            this.chkIL.Location = new System.Drawing.Point(3, 3);
+            this.chkIL.Name = "chkIL";
+            this.chkIL.Size = new System.Drawing.Size(65, 17);
+            this.chkIL.TabIndex = 13;
+            this.chkIL.Text = "IL Mode";
+            this.chkIL.UseVisualStyleBackColor = true;
+            this.chkIL.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
+            // 
             // chkStart
             // 
             this.chkStart.AutoSize = true;
@@ -83,23 +95,10 @@
             this.chkStart.UseVisualStyleBackColor = true;
             this.chkStart.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
             // 
-            // chkEnd
-            // 
-            this.chkEnd.AutoSize = true;
-            this.chkEnd.Location = new System.Drawing.Point(74, 26);
-            this.chkEnd.Name = "chkEnd";
-            this.chkEnd.Size = new System.Drawing.Size(45, 17);
-            this.chkEnd.TabIndex = 1;
-            this.chkEnd.Text = "End";
-            this.toolTips.SetToolTip(this.chkEnd, "Splits when you lose control in the Heart of the Bastion. It will split early if " +
-        "you choose a dialogue option.");
-            this.chkEnd.UseVisualStyleBackColor = true;
-            this.chkEnd.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
-            // 
             // chkReset
             // 
             this.chkReset.AutoSize = true;
-            this.chkReset.Location = new System.Drawing.Point(74, 49);
+            this.chkReset.Location = new System.Drawing.Point(74, 26);
             this.chkReset.Name = "chkReset";
             this.chkReset.Size = new System.Drawing.Size(54, 17);
             this.chkReset.TabIndex = 8;
@@ -112,7 +111,7 @@
             // 
             this.chkSplit.AutoSize = true;
             this.flowOptions.SetFlowBreak(this.chkSplit, true);
-            this.chkSplit.Location = new System.Drawing.Point(74, 72);
+            this.chkSplit.Location = new System.Drawing.Point(74, 49);
             this.chkSplit.Name = "chkSplit";
             this.chkSplit.Size = new System.Drawing.Size(46, 17);
             this.chkSplit.TabIndex = 9;
@@ -155,20 +154,6 @@
             this.chkRam.UseVisualStyleBackColor = true;
             this.chkRam.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
             // 
-            // chkIL
-            // 
-            this.chkIL.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.chkIL.AutoSize = true;
-            this.flowOptions.SetFlowBreak(this.chkIL, true);
-            this.chkIL.Location = new System.Drawing.Point(3, 3);
-            this.chkIL.Name = "chkIL";
-            this.chkIL.Size = new System.Drawing.Size(65, 17);
-            this.chkIL.TabIndex = 13;
-            this.chkIL.Text = "IL Mode";
-            this.chkIL.UseVisualStyleBackColor = true;
-            this.chkIL.CheckedChanged += new System.EventHandler(this.chkBox_CheckedChanged);
-            // 
             // BastionSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -192,7 +177,6 @@
 		#endregion
 		private System.Windows.Forms.FlowLayoutPanel flowMain;
 		private System.Windows.Forms.FlowLayoutPanel flowOptions;
-		private System.Windows.Forms.CheckBox chkEnd;
 		private System.Windows.Forms.CheckBox chkTazal;
         private System.Windows.Forms.ToolTip toolTips;
         private System.Windows.Forms.CheckBox chkStart;

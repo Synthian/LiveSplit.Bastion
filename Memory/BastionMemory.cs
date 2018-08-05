@@ -1,9 +1,13 @@
-﻿using System;
+﻿// This file is pretty monolithic and should probably be split up
+// (but I didn't write it initially so I'm gonna leave it mostly untouched)
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+
 namespace LiveSplit.Bastion.Memory
 {
-    public partial class BastionMemory
+    public class BastionMemory
     {
         private ProgramPointer nextMap, player;
         public Process Program { get; set; }
@@ -17,6 +21,11 @@ namespace LiveSplit.Bastion.Memory
             lastHooked = DateTime.MinValue;
         }
 
+        // --- Variable retrieval methods ---
+        // These work by following a pointer path from a pre-located source
+
+        // Retrieves the AllowInput variable from game data
+        // Basically, the variable that tells you if you have control of the kid
         public bool AllowInput()
         {
             if (player.Version == MemVersion.V2)
@@ -28,6 +37,10 @@ namespace LiveSplit.Bastion.Memory
                 return player.Read<bool>(0x0, 0x4, 0xc, 0x308, 0x60);
             }
         }
+
+        // Retrieves PlayerUnit variable
+        // This is a player object that exists when the game is loaded
+        // The object will not be there when in a menu, for instance
         public int PlayerUnit()
         {
             if (player.Version == MemVersion.V2)
@@ -39,6 +52,8 @@ namespace LiveSplit.Bastion.Memory
                 return player.Read<int>(0x0, 0x4, 0xc, 0x308, 0x8);
             }
         }
+
+        // Retrieves the X position of the kid
         public float PlayerX()
         {
             if (player.Version == MemVersion.V2)
@@ -50,6 +65,8 @@ namespace LiveSplit.Bastion.Memory
                 return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xd8);
             }
         }
+
+        // Retrieves the Y position of the kid
         public float PlayerY()
         {
             if (player.Version == MemVersion.V2)
@@ -61,18 +78,28 @@ namespace LiveSplit.Bastion.Memory
                 return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xdc);
             }
         }
+
+        // Retrieves the X position of the object that the kid is targeting
+        // In this context, "targeting" refers to what the kid will try to interact with.
         public float targetX()
         {
             return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0xc, 0xd8);
         }
+
+        // Retrieves the Y position of the object that the kid is targeting
         public float targetY()
         {
             return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0xc, 0xdc);
         }
+
+        // TODO: remember what the MapPointer variable is
         public int MapPointer()
         {
             return nextMap.Value.ToInt32();
         }
+
+        // Retrieves the name of the map that was most recently loaded
+        // i.e. "ProtoIntro02a.map"
         public string NextMapName()
         {
             int length = 0;
@@ -95,6 +122,8 @@ namespace LiveSplit.Bastion.Memory
             }
             return null;
         }
+
+        // Hooks the splitter onto the Bastion process
         public bool HookProcess()
         {
             if ((Program == null || Program.HasExited) && DateTime.Now > lastHooked.AddSeconds(1))
@@ -112,6 +141,7 @@ namespace LiveSplit.Bastion.Memory
 
             return IsHooked;
         }
+
         public void Dispose()
         {
             if (Program != null)
@@ -120,6 +150,8 @@ namespace LiveSplit.Bastion.Memory
             }
         }
     }
+    
+    // Versions of Memory layout, enumerated
     public enum MemVersion
     {
         None,
@@ -127,13 +159,20 @@ namespace LiveSplit.Bastion.Memory
         V2,
         V3
     }
+
+    // The enumerated starting positions for pointer pathing
     public enum MemPointer
     {
         World_Update,
         UnitManager_UpdateBuffer
     }
+
+
     public class ProgramPointer
     {
+        // Dictionary storing the data to be found in memory that orient the process
+        // Basically, we don't know where certain things will be in memory, but we know where things are relative to each other
+        // These are defined starting points that we can find
         private static Dictionary<MemVersion, Dictionary<MemPointer, string>> funcPatterns = new Dictionary<MemVersion, Dictionary<MemPointer, string>>() {
             {MemVersion.V1, new Dictionary<MemPointer, string>() {
                     {MemPointer.World_Update,             "4DB8FF15????????8B15????????39028D7DBC|-9" },
@@ -148,6 +187,7 @@ namespace LiveSplit.Bastion.Memory
                     {MemPointer.UnitManager_UpdateBuffer, "85C074??8B3D????????8B470C8B????????????????????????????????????????8B4F048B5F0C8D430189470C568BD3E8??????????????????|-53" }
             }},
         };
+
         private IntPtr pointer;
         public BastionMemory Memory { get; set; }
         public MemPointer Name { get; set; }
@@ -155,6 +195,8 @@ namespace LiveSplit.Bastion.Memory
         public bool AutoDeref { get; set; }
         private int lastID;
         private DateTime lastTry;
+
+
         public ProgramPointer(BastionMemory memory, MemPointer pointer)
         {
             this.Memory = memory;

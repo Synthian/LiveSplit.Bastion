@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Xml;
+
 namespace LiveSplit.Bastion.Settings
 {
     public partial class BastionSettings : UserControl
     {
         public bool Reset { get; set; }
         public bool Start { get; set; }
-        public bool End { get; set; }
         public bool Split { get; set; }
         public bool Tazal { get; set; }
         public bool Ram { get; set; }
@@ -24,7 +24,6 @@ namespace LiveSplit.Bastion.Settings
             //Defaults
             Reset = true;
             Start = true;
-            End = true;
             Split = true;
             Tazal = true;
             Ram = false;
@@ -43,7 +42,6 @@ namespace LiveSplit.Bastion.Settings
         }
         public void LoadSettings()
         {
-            chkEnd.Checked = End;
             chkStart.Checked = Start;
             chkReset.Checked = Reset;
             chkSplit.Checked = Split;
@@ -56,7 +54,6 @@ namespace LiveSplit.Bastion.Settings
         {
             chkReset.Enabled = !chkIL.Checked;
             chkStart.Enabled = !chkIL.Checked;
-            chkEnd.Enabled = !chkIL.Checked;
             chkSplit.Enabled = !chkIL.Checked;
             chkTazal.Enabled = chkSplit.Checked && !chkIL.Checked;
             chkRam.Enabled = chkSplit.Checked && !chkIL.Checked;
@@ -72,7 +69,6 @@ namespace LiveSplit.Bastion.Settings
             Ram = chkRam.Checked;
             Reset = chkReset.Checked;
             Start = chkStart.Checked;
-            End = chkEnd.Checked;
             Split = chkSplit.Checked;
             Tazal = chkTazal.Checked;
             IL = chkIL.Checked;
@@ -85,7 +81,6 @@ namespace LiveSplit.Bastion.Settings
             SetSetting(document, xmlSettings, chkRam, "Ram");
             SetSetting(document, xmlSettings, chkReset, "Reset");
             SetSetting(document, xmlSettings, chkStart, "Start");
-            SetSetting(document, xmlSettings, chkEnd, "End");
             SetSetting(document, xmlSettings, chkSplit, "Split");
             SetSetting(document, xmlSettings, chkTazal, "Tazal");
             SetSetting(document, xmlSettings, chkIL, "IL");
@@ -104,7 +99,6 @@ namespace LiveSplit.Bastion.Settings
             Ram = GetSetting(settings, "//Ram");
             Reset = GetSetting(settings, "//Reset");
             Start = GetSetting(settings, "//Start");
-            End = GetSetting(settings, "//End");
             Split = GetSetting(settings, "//Split");
             Tazal = GetSetting(settings, "//Tazal");
             IL = GetSetting(settings, "//IL");
