@@ -1,116 +1,126 @@
 ﻿using System;
 using System.Windows.Forms;
-using System.Xml;
 
 namespace LiveSplit.Bastion.Settings
 {
     public partial class BastionSettings : UserControl
     {
+        public bool IL_Mode { get; set; }
+        public bool Skyway_Mode { get; set; }
+        public bool Load_Mode { get; set; }
+
         public bool Reset { get; set; }
         public bool Start { get; set; }
         public bool Split { get; set; }
+
         public bool Tazal { get; set; }
         public bool Ram { get; set; }
         public bool SoleRegret { get; set; }
-        public bool IL { get; set; }
-        private BastionComponent component;
-        private bool isLoading;
 
-        public BastionSettings(BastionComponent comp)
+        public BastionSettings()
         {
-            isLoading = true;
             InitializeComponent();
 
-            //Defaults
-            Reset = true;
-            Start = true;
-            Split = true;
-            Tazal = true;
-            Ram = false;
-            SoleRegret = false;
-            IL = false;
-
-            component = comp;
-            isLoading = false;
+            chkReset.DataBindings.Add("Checked", this, "Reset", false, DataSourceUpdateMode.OnPropertyChanged);
+            chkStart.DataBindings.Add("Checked", this, "Start", false, DataSourceUpdateMode.OnPropertyChanged);
+            chkSplit.DataBindings.Add("Checked", this, "Split", false, DataSourceUpdateMode.OnPropertyChanged);
+            chkTazal.DataBindings.Add("Checked", this, "Tazal", false, DataSourceUpdateMode.OnPropertyChanged);
+            chkRam.DataBindings.Add("Checked", this, "Ram", false, DataSourceUpdateMode.OnPropertyChanged);
+            chkSoleRegret.DataBindings.Add("Checked", this, "SoleRegret", false, DataSourceUpdateMode.OnPropertyChanged);
         }
 
-        private void Settings_Load(object sender, EventArgs e)
+        private void BastionSettings_Load(object sender, EventArgs e)
         {
-            isLoading = true;
-            LoadSettings();
-            isLoading = false;
+            radioIL_Mode.Checked = IL_Mode;
+            radioSkyway_Mode.Checked = Skyway_Mode;
+            radioLoad_Mode.Checked = Load_Mode;
         }
-        public void LoadSettings()
-        {
-            chkStart.Checked = Start;
-            chkReset.Checked = Reset;
-            chkSplit.Checked = Split;
-            chkTazal.Checked = Tazal;
-            chkSoleRegret.Checked = SoleRegret;
-            chkRam.Checked = Ram;
-            chkIL.Checked = IL;
-        }
-        private void chkBox_CheckedChanged(object sender, EventArgs e)
-        {
-            chkReset.Enabled = !chkIL.Checked;
-            chkStart.Enabled = !chkIL.Checked;
-            chkSplit.Enabled = !chkIL.Checked;
-            chkTazal.Enabled = chkSplit.Checked && !chkIL.Checked;
-            chkRam.Enabled = chkSplit.Checked && !chkIL.Checked;
-            chkSoleRegret.Enabled = chkSplit.Checked && !chkIL.Checked;
 
-            UpdateSplits();
-        }
-        public void UpdateSplits()
+        void UpdateMode()
         {
-            if (isLoading) return;
+            IL_Mode = radioIL_Mode.Checked;
+            Skyway_Mode = radioSkyway_Mode.Checked;
+            Load_Mode = radioLoad_Mode.Checked;
+        }
 
-            SoleRegret = chkSoleRegret.Checked;
-            Ram = chkRam.Checked;
-            Reset = chkReset.Checked;
-            Start = chkStart.Checked;
-            Split = chkSplit.Checked;
-            Tazal = chkTazal.Checked;
-            IL = chkIL.Checked;
-        }
-        public XmlNode UpdateSettings(XmlDocument document)
+        public System.Xml.XmlNode GetSettings(System.Xml.XmlDocument document)
         {
-            XmlElement xmlSettings = document.CreateElement("Settings");
+            var settingsNode = document.CreateElement("Settings");
 
-            SetSetting(document, xmlSettings, chkSoleRegret, "SoleRegret");
-            SetSetting(document, xmlSettings, chkRam, "Ram");
-            SetSetting(document, xmlSettings, chkReset, "Reset");
-            SetSetting(document, xmlSettings, chkStart, "Start");
-            SetSetting(document, xmlSettings, chkSplit, "Split");
-            SetSetting(document, xmlSettings, chkTazal, "Tazal");
-            SetSetting(document, xmlSettings, chkIL, "IL");
+            var il_modeNode = document.CreateElement("IL_Mode");
+            il_modeNode.InnerText = IL_Mode ? "True" : "False";
+            settingsNode.AppendChild(il_modeNode);
 
-            return xmlSettings;
+            var skyway_modeNode = document.CreateElement("Skyway_Mode");
+            skyway_modeNode.InnerText = Skyway_Mode ? "True" : "False";
+            settingsNode.AppendChild(skyway_modeNode);
+
+            var load_modeNode = document.CreateElement("Load_Mode");
+            load_modeNode.InnerText = Load_Mode ? "True" : "False";
+            settingsNode.AppendChild(load_modeNode);
+
+            var resetNode = document.CreateElement("Reset");
+            resetNode.InnerText = Reset ? "True" : "False";
+            settingsNode.AppendChild(resetNode);
+
+            var startNode = document.CreateElement("Start");
+            startNode.InnerText = Start ? "True" : "False";
+            settingsNode.AppendChild(startNode);
+
+            var splitNode = document.CreateElement("Split");
+            splitNode.InnerText = Split ? "True" : "False";
+            settingsNode.AppendChild(splitNode);
+
+            var tazalNode = document.CreateElement("Tazal");
+            tazalNode.InnerText = Tazal ? "True" : "False";
+            settingsNode.AppendChild(tazalNode);
+
+            var ramNode = document.CreateElement("Ram");
+            ramNode.InnerText = Ram ? "True" : "False";
+            settingsNode.AppendChild(ramNode);
+
+            var soleregretNode = document.CreateElement("SoleRegret");
+            soleregretNode.InnerText = SoleRegret ? "True" : "False";
+            settingsNode.AppendChild(soleregretNode);
+
+            return settingsNode;
         }
-        private void SetSetting(XmlDocument document, XmlElement settings, CheckBox chk, string name)
+
+        public void SetSettings(System.Xml.XmlNode settings)
         {
-            XmlElement xmlOption = document.CreateElement(name);
-            xmlOption.InnerText = chk.Checked.ToString();
-            settings.AppendChild(xmlOption);
-        }
-        public void SetSettings(XmlNode settings)
-        {
-            SoleRegret = GetSetting(settings, "//SoleRegret");
-            Ram = GetSetting(settings, "//Ram");
-            Reset = GetSetting(settings, "//Reset");
-            Start = GetSetting(settings, "//Start");
-            Split = GetSetting(settings, "//Split");
-            Tazal = GetSetting(settings, "//Tazal");
-            IL = GetSetting(settings, "//IL");
-        }
-        private bool GetSetting(XmlNode settings, string name)
-        {
-            XmlNode option = settings.SelectSingleNode(name);
-            if (option != null && option.InnerText != "")
-            {
-                return bool.Parse(option.InnerText);
+            try {
+                IL_Mode = (settings["IL_Mode"].InnerText == "True");
+                Skyway_Mode = (settings["Skyway_Mode"].InnerText == "True");
+                Load_Mode = (settings["Load_Mode"].InnerText == "True");
+            } catch (NullReferenceException nre) {
+                IL_Mode = false;
+                Skyway_Mode = true;
+                Load_Mode = false;
             }
-            return false;
+
+            Reset = (settings["Reset"].InnerText == "True");
+            Start = (settings["Start"].InnerText == "True");
+            Split = (settings["Split"].InnerText == "True");
+            Tazal = (settings["Tazal"].InnerText == "True");
+            Ram = (settings["Ram"].InnerText == "True");
+            SoleRegret = (settings["SoleRegret"].InnerText == "True");
         }
+
+        private void radioIL_Mode_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateMode();
+        }
+
+        private void radioSkyway_Mode_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateMode();
+        }
+
+        private void radioLoad_Mode_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateMode();
+        }
+
+
     }
 }

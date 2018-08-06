@@ -34,7 +34,7 @@ namespace LiveSplit.Bastion {
         // Initialize memory and settings
 		public BastionComponent() {
 			mem = new BastionMemory();
-			settings = new BastionSettings(this);
+			settings = new BastionSettings();
 			foreach (string key in keys) {
 				currentValues[key] = "";
 			}
@@ -64,7 +64,7 @@ namespace LiveSplit.Bastion {
             double playerX = mem.PlayerX();
             double playerY = mem.PlayerY();
 
-            if (settings.IL)
+            if (settings.IL_Mode)
             {
                 if (currentSplit == 0) {
                     // Check IL level start transitions
@@ -443,7 +443,7 @@ namespace LiveSplit.Bastion {
         }
 
 		public XmlNode GetSettings(XmlDocument document) {
-            return settings.UpdateSettings(document);
+            return settings.GetSettings(document);
         }
         
         // We take up no space visually, so we return nothing/zero for visual calls from LiveSplit
