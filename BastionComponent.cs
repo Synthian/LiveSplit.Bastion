@@ -34,7 +34,7 @@ namespace LiveSplit.Bastion {
         // Initialize memory and settings
 		public BastionComponent() {
 			mem = new BastionMemory();
-			settings = new BastionSettings(this);
+			settings = new BastionSettings();
 			foreach (string key in keys) {
 				currentValues[key] = "";
 			}
@@ -54,71 +54,59 @@ namespace LiveSplit.Bastion {
 		}
 
         private void HandleBastion() {
-            // Update transition variables
 
             bool shouldSplit = false;
             bool allowInput = mem.AllowInput();
-            // The nextMap variable defaults to the previous map if there is no valid map
-            // Therefore the variable shows you what the user is CURRENTLY loading or LAST LOADED (if not currently loading)
             string nextMap = mem.NextMapName() ?? oldMap;
             double playerX = mem.PlayerX();
             double playerY = mem.PlayerY();
 
-            if (settings.IL)
-            {
+            if (settings.IL_Mode) {
                 if (currentSplit == 0) {
-                    // Check IL level start transitions
                     shouldSplit = ilStarted(nextMap, allowInput);
                 }
                 else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
-                    // Check general level end transitions
                     shouldSplit = generalLevelEnded(nextMap, playerX, playerY, allowInput);
                 }
 
-                // Handle split decision
-                // false because we never reset in IL mode
                 HandleSplit(shouldSplit, false);
             }
-            else
-            {
+            else {
                 if (currentSplit == 0 && settings.Start) {
-                    // Standard run start condition
                     // Split if (in Rippling Walls) AND (transitioning from no-control to control)
                     shouldSplit = ((nextMap == "ProtoIntro01.map") && !oldAllowInput && allowInput);
                 }
                 else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
-                    // End of game
                     // Split if (Settings allow) AND (in Heart of the Bastion) AND (transitioning from control to no-control) AND (in range of Monument)
                     if (settings.Split && (nextMap == "End01.map") && oldAllowInput && !allowInput && inRange(2404, 2366, playerX, playerY)) {
                         shouldSplit = true;
                     }
                     else if (settings.Split) {
-                        // Ram Pickup Split
                         // Split if (Settings allow) AND (transitioning from control to no-control) AND (we're on the ram map) AND (in range of Ram)
                         if (settings.Ram && oldAllowInput && !allowInput && (nextMap == "FinalRam01.map") && inRange(3747, 2541, playerX, playerY)) {
                             shouldSplit = true;
                         }
-                        // Tazal I Split
                         // Split if (Settings allow) AND (starting to load FinalRam01)
                         else if (settings.Tazal && (nextMap == "FinalRam01.map") && (oldMap != "FinalRam01.map")) {
                             shouldSplit = true;
                         }
-                        // Sole Regret Split
                         // Split if (Settings allow) AND (starting to load Wharf District)
                         else if (settings.SoleRegret && nextMap == "ProtoIntro01b.map" && oldMap != "ProtoIntro01b.map") {
                             shouldSplit = true;
                         }
-                        // General level end conditions
                         else {
-                            shouldSplit = generalLevelEnded(nextMap, playerX, playerY, allowInput);
+                            if (settings.Skyway_Mode)
+                                shouldSplit = generalLevelEnded(nextMap, playerX, playerY, allowInput);
+                            else if (settings.Load_Mode)
+                                shouldSplit = loadLevelEnded(oldMap, nextMap);
                         }
                     }
                 }
 
-                // Handle split decision
-                // Send reset if (loading or in Rippling Walls) AND (Player model is not found)
-                HandleSplit(shouldSplit, (nextMap == "ProtoIntro01.map") && noModel);
+                // Send reset if (at starting location) AND (in Rippling Walls) AND (No Input)
+                HandleSplit(shouldSplit, ((playerX == 5019) && (playerY == 6404) && (nextMap == "ProtoIntro01.map") && (allowInput == false)));
             }
+
 
             // Update variables for next cycle
             // If our PlayerUnit is gone, we are either loading or in the main menu
@@ -173,7 +161,7 @@ namespace LiveSplit.Bastion {
                 switch (nextMap)
                 {
                     case "ProtoIntro01b.map":
-                        if (playerX > 17070 && playerY < 7930)
+                        if (playerX > 16800 && playerY < 8000)
                             return true;
                         break;
                     case "Crossroads01.map":
@@ -301,8 +289,24 @@ namespace LiveSplit.Bastion {
             return false;
         }
 
+        private bool loadLevelEnded(String old, String next) {
+            // Going from any level to the Bastion
+            if ((next == "ProtoTown03.map") && (old != "ProtoTown03.map") && (old != "Attack01.map") && (old != ""))  {
+                return true;
+            }
+            // Going from Langston to Prosper
+            else if ((next == "Survivor02.map") && (old != "Survivor02.map") && (old != "ProtoTown03.map")) {
+                return true;
+            }
+            // End of Burstone
+            else if ((next == "Attack01.map") && (old != "Attack01.map")) {
+                return true;
+            }
+            return false;
+        }
+
         // Test if Thing is within SPLIT_DIST of pos
-		private bool inRange(double ThingX, double ThingY, double posX, double posY) {
+        private bool inRange(double ThingX, double ThingY, double posX, double posY) {
 			double dist = Math.Sqrt(Math.Pow((ThingX - posX), 2) + Math.Pow((ThingY - posY), 2));
 			if (dist < SPLIT_DIST)
 				return true;
@@ -443,7 +447,7 @@ namespace LiveSplit.Bastion {
         }
 
 		public XmlNode GetSettings(XmlDocument document) {
-            return settings.UpdateSettings(document);
+            return settings.GetSettings(document);
         }
         
         // We take up no space visually, so we return nothing/zero for visual calls from LiveSplit
