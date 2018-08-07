@@ -1,5 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+  <update version="5.1.1">
+    <files>
+      <file path="Components/LiveSplit.Bastion.dll" status="changed"/>
+    </files>
+    <changelog>
+      <change>[5.1.1] Fixed issue causing LiveSplit to crash and be unrecoverable.</change>
+      <change>[5.1] Reinstated level load splitting</change>
+      <change>[5.1] Redesigned and refactored settings code to fix disappearing settings</change>
+      <change>[5.1] Changed reset code to remove unintended autoresets</change>
+      <change>[5.1] Made Skyway splitting at the end of WD more generous</change>
+    </changelog>
+  </update>
   <update version="5.1.0">
     <files>
       <file path="Components/LiveSplit.Bastion.dll" status="changed"/>

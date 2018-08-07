@@ -98,12 +98,21 @@ namespace LiveSplit.Bastion.Settings
                 Load_Mode = false;
             }
 
-            Reset = (settings["Reset"].InnerText == "True");
-            Start = (settings["Start"].InnerText == "True");
-            Split = (settings["Split"].InnerText == "True");
-            Tazal = (settings["Tazal"].InnerText == "True");
-            Ram = (settings["Ram"].InnerText == "True");
-            SoleRegret = (settings["SoleRegret"].InnerText == "True");
+            try {
+                Reset = (settings["Reset"].InnerText == "True");
+                Start = (settings["Start"].InnerText == "True");
+                Split = (settings["Split"].InnerText == "True");
+                Tazal = (settings["Tazal"].InnerText == "True");
+                Ram = (settings["Ram"].InnerText == "True");
+                SoleRegret = (settings["SoleRegret"].InnerText == "True");
+            } catch (NullReferenceException nre) {
+                Reset = true;
+                Start = true;
+                Split = true;
+                Tazal = false;
+                Ram = false;
+                SoleRegret = false;
+            }
         }
 
         private void radioIL_Mode_CheckedChanged(object sender, EventArgs e)
