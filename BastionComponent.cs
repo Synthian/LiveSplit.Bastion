@@ -161,7 +161,7 @@ namespace LiveSplit.Bastion {
                 switch (nextMap)
                 {
                     case "ProtoIntro01b.map":
-                        if (playerX > 17070 && playerY < 7930)
+                        if (playerX > 16800 && playerY < 8000)
                             return true;
                         break;
                     case "Crossroads01.map":
