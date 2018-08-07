@@ -103,8 +103,8 @@ namespace LiveSplit.Bastion {
                     }
                 }
 
-                // Send reset if (loading or in Rippling Walls) AND (Player model is not found)
-                HandleSplit(shouldSplit, (nextMap == "ProtoIntro01.map") && noModel);
+                // Send reset if (at starting location) AND (in Rippling Walls) AND (No Input)
+                HandleSplit(shouldSplit, ((playerX == 5019) && (playerY == 6404) && (nextMap == "ProtoIntro01.map") && (allowInput == false)));
             }
 
 
