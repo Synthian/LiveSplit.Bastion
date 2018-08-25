@@ -1,5 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+  <update version="5.2.0">
+    <files>
+      <file path="Components/LiveSplit.Bastion.dll" status="changed"/>
+    </files>
+    <changelog>
+      <change>Returned the "End" setting.</change>
+      <change>Fixed ILs not starting.</change>
+    </changelog>
+  </update>
   <update version="5.1.1">
     <files>
       <file path="Components/LiveSplit.Bastion.dll" status="changed"/>
