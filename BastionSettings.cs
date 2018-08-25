@@ -12,6 +12,7 @@ namespace LiveSplit.Bastion.Settings
         public bool Reset { get; set; }
         public bool Start { get; set; }
         public bool Split { get; set; }
+        public bool End { get; set; }
 
         public bool Tazal { get; set; }
         public bool Ram { get; set; }
@@ -24,6 +25,7 @@ namespace LiveSplit.Bastion.Settings
             chkReset.DataBindings.Add("Checked", this, "Reset", false, DataSourceUpdateMode.OnPropertyChanged);
             chkStart.DataBindings.Add("Checked", this, "Start", false, DataSourceUpdateMode.OnPropertyChanged);
             chkSplit.DataBindings.Add("Checked", this, "Split", false, DataSourceUpdateMode.OnPropertyChanged);
+            chkEnd.DataBindings.Add("Checked", this, "End", false, DataSourceUpdateMode.OnPropertyChanged);
             chkTazal.DataBindings.Add("Checked", this, "Tazal", false, DataSourceUpdateMode.OnPropertyChanged);
             chkRam.DataBindings.Add("Checked", this, "Ram", false, DataSourceUpdateMode.OnPropertyChanged);
             chkSoleRegret.DataBindings.Add("Checked", this, "SoleRegret", false, DataSourceUpdateMode.OnPropertyChanged);
@@ -71,6 +73,10 @@ namespace LiveSplit.Bastion.Settings
             splitNode.InnerText = Split ? "True" : "False";
             settingsNode.AppendChild(splitNode);
 
+            var endNode = document.CreateElement("End");
+            endNode.InnerText = End ? "True" : "False";
+            settingsNode.AppendChild(endNode);
+
             var tazalNode = document.CreateElement("Tazal");
             tazalNode.InnerText = Tazal ? "True" : "False";
             settingsNode.AppendChild(tazalNode);
@@ -112,6 +118,12 @@ namespace LiveSplit.Bastion.Settings
                 Tazal = false;
                 Ram = false;
                 SoleRegret = false;
+            }
+
+            try {
+                End = (settings["End"].InnerText == "True");
+            } catch (NullReferenceException nre) {
+                End = true;
             }
         }
 

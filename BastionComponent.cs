@@ -78,7 +78,7 @@ namespace LiveSplit.Bastion {
                 }
                 else if (Model.CurrentState.CurrentPhase == TimerPhase.Running) {
                     // Split if (Settings allow) AND (in Heart of the Bastion) AND (transitioning from control to no-control) AND (in range of Monument)
-                    if (settings.Split && (nextMap == "End01.map") && oldAllowInput && !allowInput && inRange(2404, 2366, playerX, playerY)) {
+                    if (settings.End && (nextMap == "End01.map") && oldAllowInput && !allowInput && inRange(2404, 2366, playerX, playerY)) {
                         shouldSplit = true;
                     }
                     else if (settings.Split) {
@@ -127,6 +127,8 @@ namespace LiveSplit.Bastion {
             else if (oldMap == "ProtoTown03.map") {
                 switch (nextMap)
                 {
+                    // This looks ugly but it's the most efficient way to program this! The computer can jump directly
+                    // into the correct case without evaulating other cases.
                     case "Crossroads01.map":
                     case "Holdout01.map":
                     case "Falling01.map":
@@ -149,6 +151,7 @@ namespace LiveSplit.Bastion {
                     case "Onslaught02.map":
                     case "Onslaught03.map":
                     case "Onslaught04.map":
+                        return true;
                     default:
                         return false;
                 }

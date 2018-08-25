@@ -39,6 +39,7 @@
             this.chkRam = new System.Windows.Forms.CheckBox();
             this.chkTazal = new System.Windows.Forms.CheckBox();
             this.toolTips = new System.Windows.Forms.ToolTip(this.components);
+            this.chkEnd = new System.Windows.Forms.CheckBox();
             this.flowMain.SuspendLayout();
             this.flowOptions.SuspendLayout();
             this.grpboxMode.SuspendLayout();
@@ -130,13 +131,14 @@
             // grpboxBasic
             // 
             this.grpboxBasic.AutoSize = true;
+            this.grpboxBasic.Controls.Add(this.chkEnd);
             this.grpboxBasic.Controls.Add(this.chkStart);
             this.grpboxBasic.Controls.Add(this.chkSplit);
             this.grpboxBasic.Controls.Add(this.chkReset);
             this.flowOptions.SetFlowBreak(this.grpboxBasic, true);
             this.grpboxBasic.Location = new System.Drawing.Point(99, 3);
             this.grpboxBasic.Name = "grpboxBasic";
-            this.grpboxBasic.Size = new System.Drawing.Size(66, 102);
+            this.grpboxBasic.Size = new System.Drawing.Size(66, 125);
             this.grpboxBasic.TabIndex = 18;
             this.grpboxBasic.TabStop = false;
             this.grpboxBasic.Text = "Basic";
@@ -221,6 +223,17 @@
         "ay point of Tazal Terminals.");
             this.chkTazal.UseVisualStyleBackColor = true;
             // 
+            // chkEnd
+            // 
+            this.chkEnd.AutoSize = true;
+            this.chkEnd.Location = new System.Drawing.Point(6, 89);
+            this.chkEnd.Name = "chkEnd";
+            this.chkEnd.Size = new System.Drawing.Size(45, 17);
+            this.chkEnd.TabIndex = 10;
+            this.chkEnd.Text = "End";
+            this.toolTips.SetToolTip(this.chkEnd, "Splits at the end of the game.");
+            this.chkEnd.UseVisualStyleBackColor = true;
+            // 
             // BastionSettings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -263,5 +276,6 @@
         private System.Windows.Forms.GroupBox grpboxMode;
         private System.Windows.Forms.GroupBox grpboxBasic;
         private System.Windows.Forms.GroupBox grpboxSpecial;
+        private System.Windows.Forms.CheckBox chkEnd;
     }
 }
