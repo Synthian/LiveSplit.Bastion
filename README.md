@@ -16,7 +16,8 @@ The auto splitter is currently capable of starting and ending your splits, reset
 
 **Start** - Toggles automatically starting splits.  
 **Reset** - Toggles automatically resetting.  
-**Split** - Toggles splitting after completing each level (and ending the game).  
+**Split** - Toggles splitting after completing each level.  
+**End** - Toggles splitting at the end of the game.
 
 #### Special Settings
 
