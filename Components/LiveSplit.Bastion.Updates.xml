@@ -1,5 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+  <update version="5.3.0">
+    <files>
+      <file path="Components/LiveSplit.Bastion.dll" status="changed"/>
+    </files>
+    <changelog>
+      <change>Updated IL Mode to match new rules.</change>
+      <change>Added IL auto-resets. Will not auto-reset if you have Reset unchecked.</change>
+    </changelog>
+  </update>
   <update version="5.2.0">
     <files>
       <file path="Components/LiveSplit.Bastion.dll" status="changed"/>

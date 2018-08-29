@@ -8,14 +8,14 @@ The auto splitter is currently capable of starting and ending your splits, reset
 ## Options (Edit Splits > Settings)
 
 #### Split Modes
-**IL Mode** - Your (single) split will start when you enter a level from the Bastion, and will end when exiting. Resets are all manual. Turning IL mode on disables all other settings.  
+**IL Mode** - Your (single) split will start when you enter a level from the Bastion, and will end when exiting. Resets upon using the Skyway in the Bastion, if you have reset enabled. All other settings are ignored.  
 **Skyway** - Auto splitting will occur at loss-of-control at the end of each level (typically at the skyway).  
 **Level Load** - Auto splitting will occur at the appearance of the load screen at the end of each level.  
 
 #### Basic Settings
 
 **Start** - Toggles automatically starting splits.  
-**Reset** - Toggles automatically resetting.  
+**Reset** - Toggles automatically resetting. In Skyway and Load Level modes, this is done upon finishing loading into Rippling Walls.  
 **Split** - Toggles splitting after completing each level.  
 **End** - Toggles splitting at the end of the game.
 
