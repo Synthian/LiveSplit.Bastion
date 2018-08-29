@@ -69,7 +69,8 @@ namespace LiveSplit.Bastion {
                     shouldSplit = generalLevelEnded(nextMap, playerX, playerY, allowInput);
                 }
 
-                HandleSplit(shouldSplit, false);
+                // Send reset if you (Lose control) AND (Be in the Bastion) AND (Be at the Skyway)
+                HandleSplit(shouldSplit, (oldAllowInput && !allowInput) && (nextMap == "ProtoTown03.map") && inRange(3525, 1273, playerX, playerY));
             }
             else {
                 if (currentSplit == 0 && settings.Start) {
@@ -121,14 +122,12 @@ namespace LiveSplit.Bastion {
 		}
 
         private bool ilStarted(string nextMap, bool allowInput) {
-            if ((oldMap == "ProtoIntro01.map") && !oldAllowInput && allowInput) {
-                return true;
-            }
-            else if (oldMap == "ProtoTown03.map") {
+            if (oldMap == "ProtoTown03.map") {
                 switch (nextMap)
                 {
                     // This looks ugly but it's the most efficient way to program this! The computer can jump directly
                     // into the correct case without evaulating other cases.
+                    case "ProtoIntro01.map":
                     case "Crossroads01.map":
                     case "Holdout01.map":
                     case "Falling01.map":
