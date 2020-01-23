@@ -13,6 +13,7 @@ namespace LiveSplit.Bastion.Memory
         public Process Program { get; set; }
         public bool IsHooked { get; set; } = false;
         private DateTime lastHooked;
+        private ExeVersion exeVersion;
 
         public BastionMemory()
         {
@@ -30,12 +31,13 @@ namespace LiveSplit.Bastion.Memory
         {
             if (player.Version == MemVersion.V2)
             {
+                if (exeVersion == ExeVersion.GOG)
+                {
+                    return player.Read<bool>(0x0, 0x4, 0x8, 0x314, 0x61);
+                }
                 return player.Read<bool>(0x0, 0x4, 0x8, 0x308, 0x60);
             }
-            else
-            {
-                return player.Read<bool>(0x0, 0x4, 0xc, 0x308, 0x60);
-            }
+            return player.Read<bool>(0x0, 0x4, 0xc, 0x308, 0x60);
         }
 
         // Retrieves PlayerUnit variable
@@ -45,12 +47,13 @@ namespace LiveSplit.Bastion.Memory
         {
             if (player.Version == MemVersion.V2)
             {
+                if (exeVersion == ExeVersion.GOG)
+                {
+                    return player.Read<int>(0x0, 0x4, 0x8, 0x314, 0xc);
+                }
                 return player.Read<int>(0x0, 0x4, 0x8, 0x308, 0x8);
             }
-            else
-            {
-                return player.Read<int>(0x0, 0x4, 0xc, 0x308, 0x8);
-            }
+            return player.Read<int>(0x0, 0x4, 0xc, 0x308, 0x8);
         }
 
         // Retrieves the X position of the kid
@@ -58,12 +61,13 @@ namespace LiveSplit.Bastion.Memory
         {
             if (player.Version == MemVersion.V2)
             {
+                if (exeVersion == ExeVersion.GOG)
+                {
+                    return player.Read<float>(0x0, 0x4, 0x8, 0x314, 0xc, 0xd8);
+                }
                 return player.Read<float>(0x0, 0x4, 0x8, 0x308, 0x8, 0xd8);
             }
-            else
-            {
-                return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xd8);
-            }
+            return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xd8);
         }
 
         // Retrieves the Y position of the kid
@@ -71,12 +75,13 @@ namespace LiveSplit.Bastion.Memory
         {
             if (player.Version == MemVersion.V2)
             {
+                if (exeVersion == ExeVersion.GOG)
+                {
+                    return player.Read<float>(0x0, 0x4, 0x8, 0x314, 0xc, 0xdc);
+                }
                 return player.Read<float>(0x0, 0x4, 0x8, 0x308, 0x8, 0xdc);
             }
-            else
-            {
-                return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xdc);
-            }
+            return player.Read<float>(0x0, 0x4, 0xc, 0x308, 0x8, 0xdc);
         }
 
         // Retrieves the X position of the object that the kid is targeting
@@ -131,6 +136,15 @@ namespace LiveSplit.Bastion.Memory
                 lastHooked = DateTime.Now;
                 Process[] processes = Process.GetProcessesByName("Bastion");
                 Program = processes.Length == 0 ? null : processes[0];
+                Console.WriteLine(Program.MainModule.ModuleMemorySize);
+                if (Program.MainModule.ModuleMemorySize == 3080192)
+                {
+                    exeVersion = ExeVersion.GOG;
+                } 
+                else 
+                {
+                    exeVersion = ExeVersion.Other;
+                }
                 IsHooked = true;
             }
 
@@ -158,6 +172,12 @@ namespace LiveSplit.Bastion.Memory
         V1,
         V2,
         V3
+    }
+
+    public enum ExeVersion
+    {
+        GOG,
+        Other
     }
 
     // The enumerated starting positions for pointer pathing

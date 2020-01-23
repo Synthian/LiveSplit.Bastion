@@ -1,5 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <updates>
+  <update version="5.4.0">
+    <files>
+      <file path="Components/LiveSplit.Bastion.dll" status="changed"/>
+    </files>
+    <changelog>
+      <change>Added compatibility for the GOG release.</change>
+    </changelog>
+  </update>
   <update version="5.3.0">
     <files>
       <file path="Components/LiveSplit.Bastion.dll" status="changed"/>
